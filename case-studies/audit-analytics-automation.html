@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Audit Analytics &amp; Automation · Archish Chugh</title>
+<meta name="description" content="Case study: n8n workflows and Power BI models that made audit data preparation 25% faster and moved testing from samples to full populations.">
+<link rel="stylesheet" href="../assets/fonts.css">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+
+<nav class="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="../index.html">ARCHISH CHUGH</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../index.html#portfolio">All case studies</a></li>
+      <li><a href="banking-consortium-fraud-investigation.html">Banking</a></li>
+      <li><a href="national-health-insurance-audit.html">Health insurance</a></li>
+      <li><a href="../downloads/audit-analytics-automation.pdf" data-pdf>PDF</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+<section class="cover print-only" aria-hidden="true">
+  <div><div class="c-top">CASE STUDY 03</div><h1>Automation cut audit data preparation time by 25%</h1><p class="c-sub">n8n workflows and a Power BI model with rule-based exception flagging for forensic and controls engagements.</p><div class="c-rule"></div></div>
+  <div><div class="c-by">Archish Chugh</div><div class="c-meta">Internal Audit · Internal Controls · GRC · Fraud Investigations · 2026</div><div class="c-meta">chugharchish@gmail.com · linkedin.com/in/archish-chugh</div>
+  <p class="c-note">Client names and identifying details have been withheld. Prepared by Archish Chugh for portfolio purposes; this is not an EY publication and does not represent the views of any client.</p></div>
+</section>
+
+<header class="cs-hero">
+  <div class="wrap">
+    <p class="crumbs no-print"><a href="../index.html#portfolio">← Case studies</a></p>
+    <span class="wp">Case study 03 · Cross-sector · Analytics &amp; automation</span>
+    <h1>Automation cut audit data preparation time by 25%</h1>
+    <p class="lead">Engagement teams were spending a large share of fieldwork budget collecting, cleaning and reconciling client data. n8n workflows and a Power BI model now handle most of that preparation, releasing time for control testing.</p>
+    <p class="no-print" style="margin-top:1.25rem"><a class="btn btn-ghost" href="../downloads/audit-analytics-automation.pdf" data-pdf>Download PDF</a></p>
+    <p class="print-only" style="color:var(--navy-muted)" style="margin-top:.75rem">Archish Chugh · chugharchish@gmail.com · linkedin.com/in/archish-chugh</p>
+    <dl class="cs-meta">
+      <div><dt>Used on</dt><dd>EY Risk &amp; Compliance engagements</dd></div>
+      <div><dt>Role</dt><dd>Designed and built the workflows</dd></div>
+      <div><dt>Tools</dt><dd>n8n · Power BI · Excel</dd></div>
+      <div><dt>Result</dt><dd>25% faster data preparation</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section class="exec" aria-label="Executive summary">
+  <div class="wrap">
+    <span class="wp">Executive summary</span>
+    <div class="exec-grid"><div><h3>Situation</h3><p>Forensic and controls engagements received client data in many formats: PDFs, ERP exports, registers and spreadsheets.</p></div><div><h3>Complication</h3><p>Manual collection and matching slowed every engagement and reduced the time available for testing.</p></div><div><h3>Approach</h3><p>n8n workflows for ingestion and reconciliation, rule-based exception flags, and a Power BI star-schema model.</p></div><div><h3>Impact</h3><p>25% faster data preparation, used on 2–3 engagements, with full-population testing where the data allows.</p></div></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section style="padding-block:2.5rem 0" aria-label="Headline figures">
+    <div class="kpis">
+      <div class="kpi"><b class="num">25%</b><span>faster data pull and reconciliation</span></div>
+      <div class="kpi"><b class="num">2–3</b><span>engagements using the workflows so far</span></div>
+      <div class="kpi"><b class="num">100%</b><span>of transactions tested, instead of samples, where the data allows</span></div>
+    </div>
+  </section>
+
+  <div class="cs-body">
+    <nav class="toc" aria-label="On this page">
+      <span class="mono muted">On this page</span>
+      <a href="#problem">The problem</a>
+      <a href="#workflow">n8n workflow</a>
+      <a href="#demo">Try it</a>
+      <a href="#model">Power BI model</a>
+      <a href="#results">Results</a>
+      <a href="#adoption">Adoption</a>
+      <a href="#takeaways">Key takeaways</a>
+      <a href="#uae">UAE relevance</a>
+    </nav>
+
+    <div>
+      <section class="cs-section" id="problem" style="padding-top:0">
+        <span class="wp">01 · The problem</span>
+        <h2>Manual data preparation was consuming fieldwork budget</h2>
+        <p>On forensic and controls engagements, data arrives in many forms: bank statements as PDFs, ERP exports, agent sales files, collection registers and emailed spreadsheets. Analysts spent days collecting, reformatting and matching it by hand. The work was slow, error-prone and different on every engagement, and it cut into the time left for control testing.</p>
+      </section>
+
+      <section class="cs-section" id="workflow">
+        <span class="wp">02 · Workflow</span>
+        <h2>An n8n pipeline automates collection, matching and exception flagging</h2>
+        <figure class="exhibit" style="margin:0">
+          <div class="exhibit-cap"><h4>Exhibit 1: Reconciliation workflow, from source to exception list</h4><span class="exhibit-note">Representative design.</span></div>
+          <ol class="pipe">
+            <li><span class="node">Trigger</span><b>New data received</b>A scheduled run, or a file dropped into the engagement folder</li>
+            <li><span class="node">Ingest</span><b>Collect sources</b>ERP exports, bank statements, agent and sales records, registers</li>
+            <li><span class="node">Transform</span><b>Standardise</b>Map fields to one layout, clean dates and amounts, remove duplicates</li>
+            <li><span class="node">Match</span><b>Reconcile</b>Match the ledger to bank or agent records by key, amount and date window</li>
+            <li class="flag"><span class="node">Rules</span><b>Flag exceptions</b>Unmatched items, round amounts, weekend postings, related-party hits</li>
+            <li><span class="node">Publish</span><b>Refresh Power BI</b>Load the results into the model and alert the team with the exceptions to review</li>
+          </ol>
+        </figure>
+        <p>Here is how it worked on the aviation engagements. The workflow matched counter ticket sales against agent records and matched cash collections against the books. The exceptions it produced, such as collections never recorded and excess baggage not charged, became the starting point for control testing instead of something the team found at the end.</p>
+      </section>
+
+      <section class="cs-section" id="demo">
+        <span class="wp">03 · Try it</span>
+        <h2>Interactive demo: exception rules applied to a sample reconciliation</h2>
+        <p>This is a small version of the matching and exception rules from the workflow. It uses sample data, not client records. Turn rules on or off to see how the exception list changes.</p>
+        <figure class="exhibit recon" style="margin:0" data-recon>
+          <div class="exhibit-cap"><h4>Exhibit 2: Collections, books against bank (sample)</h4><span class="exhibit-note">Sample data for demonstration</span></div>
+          <fieldset class="rules">
+            <legend class="label">Exception rules</legend>
+            <label><input type="checkbox" id="r-missing" data-rule="missing" checked> In books, not in bank</label>
+            <label><input type="checkbox" id="r-unrec" data-rule="unrec" checked> In bank, not in books</label>
+            <label><input type="checkbox" id="r-diff" data-rule="diff" checked> Amount mismatch</label>
+            <label><input type="checkbox" id="r-round" data-rule="round" checked> Round amount (₹10,000 multiple)</label>
+            <label><input type="checkbox" id="r-weekend" data-rule="weekend" checked> Weekend posting</label>
+          </fieldset>
+          <div class="recon-sum" aria-live="polite"><span><b data-n="rows">9</b> items tested</span><span><b data-n="ok">3</b> matched</span><span class="x"><b data-n="ex">6</b> exceptions</span><button type="button" class="tbtn" data-replay>Replay the run</button></div>
+          <div class="table-scroll">
+            <table class="findings recon-table">
+              <thead><tr><th>Date</th><th>Reference</th><th class="r">Books ₹</th><th class="r">Bank ₹</th><th>Result</th></tr></thead>
+              <tbody data-rows></tbody>
+            </table>
+          </div>
+        </figure>
+      </section>
+
+      <section class="cs-section" id="model">
+        <span class="wp">04 · Data model</span>
+        <h2>A star-schema model links every exception to the control that should have caught it</h2>
+        <figure class="exhibit" style="margin:0">
+          <div class="exhibit-cap"><h4>Exhibit 3: Star schema behind the dashboards</h4><span class="exhibit-note">Representative.</span></div>
+          <div class="schema">
+            <div><b>Dim_Entity</b>Legal entities, directors, shared addresses</div>
+            <div class="fact"><b>Fact_Transactions</b>Every ledger and bank line, with a match status and exception flags</div>
+            <div><b>Dim_Counterparty</b>Vendors, agents and customers, with related-party tags</div>
+            <div><b>Dim_Date</b>Period, fiscal year, weekend and holiday flags</div>
+            <div class="fact"><b>Fact_Exceptions</b>Rule hits, reviewer, disposition and evidence reference</div>
+            <div><b>Dim_Control</b>Control ID, owner, COSO component, test result</div>
+          </div>
+        </figure>
+        <p>The dashboards had three views. An engagement overview showed reconciliation coverage and open exceptions. An exception register let reviewers filter by rule, entity and value and record what they decided. A controls view linked each exception to the control that should have prevented it, so the audit report could go straight from the data to the root cause.</p>
+      </section>
+
+      <section class="cs-section" id="results">
+        <span class="wp">05 · Results</span>
+        <h2>Data preparation time fell by 25%, and testing moved from samples to full populations</h2>
+        <figure class="exhibit" style="margin:0">
+          <div class="exhibit-cap"><h4>Exhibit 4: Time to pull and reconcile engagement data</h4><span class="exhibit-note">Index, manual process = 100</span></div>
+          <div class="chart-sm">
+            <svg viewBox="0 0 600 150" role="img" aria-labelledby="bar-t bar-d">
+              <title id="bar-t">Data preparation time, indexed</title>
+              <desc id="bar-d">Manual process indexed at 100. With the automated workflow, preparation takes 75, which is 25% less time.</desc>
+              <line x1="150" y1="18" x2="150" y2="118" class="c-grid"/><line x1="255" y1="18" x2="255" y2="118" class="c-grid"/><line x1="360" y1="18" x2="360" y2="118" class="c-grid"/><line x1="465" y1="18" x2="465" y2="118" class="c-grid"/><line x1="570" y1="18" x2="570" y2="118" class="c-grid"/>
+              <text x="150" y="138" text-anchor="middle" class="c-ax">0</text><text x="255" y="138" text-anchor="middle" class="c-ax">25</text><text x="360" y="138" text-anchor="middle" class="c-ax">50</text><text x="465" y="138" text-anchor="middle" class="c-ax">75</text><text x="570" y="138" text-anchor="middle" class="c-ax">100</text>
+              <text x="140" y="46" text-anchor="end" class="c-lbl">Manual</text>
+              <path d="M150 30 H566 a4 4 0 0 1 4 4 V52 a4 4 0 0 1 -4 4 H150 Z" class="bar-a" tabindex="0" data-tip="Manual preparation: index 100"/>
+              <text x="140" y="92" text-anchor="end" class="c-lbl">Automated</text>
+              <path d="M150 76 H461 a4 4 0 0 1 4 4 V98 a4 4 0 0 1 -4 4 H150 Z" class="bar-b" tabindex="0" data-tip="With n8n and Power BI: index 75 (25% faster)"/>
+              <text x="475" y="94" class="c-val">75 · −25%</text>
+            </svg>
+          </div>
+        </figure>
+        <ul>
+          <li><strong>Productivity:</strong> preparing engagement data took 25% less time, and that time went into control testing.</li>
+          <li><strong>Assurance:</strong> reconciliations cover full populations, so we test every transaction instead of a sample and exceptions can't fall between samples.</li>
+          <li><strong>Consistency:</strong> the same rules run on every engagement, and each exception links to its evidence reference for review.</li>
+        </ul>
+      </section>
+
+      <section class="cs-section" id="adoption">
+        <span class="wp">06 · Adoption</span>
+        <h2>Adoption was driven through a live pilot and a documented handover</h2>
+        <ol class="phases" aria-label="Engagement phases"><li><small>Phase 1</small><b>Diagnose</b><span>Map data sources and manual preparation steps</span></li><li><small>Phase 2</small><b>Build</b><span>n8n ingestion, matching and exception rules</span></li><li><small>Phase 3</small><b>Deploy</b><span>Power BI model and a live engagement pilot</span></li><li><small>Phase 4</small><b>Embed</b><span>Documentation, handover and rule tuning</span></li></ol>
+        <ol class="steps">
+          <li><b>Start with one real engagement</b>Built the first workflow on a live engagement, so the time saved was measured on real work.</li>
+          <li><b>Show managers the exceptions</b>Walked managers through the exception register and how each flag ties back to a control finding.</li>
+          <li><b>Write it down</b>Documented each workflow's inputs, rules and outputs so other analysts can reuse it independently.</li>
+          <li><b>Improve from feedback</b>Added and adjusted rules based on reviewers' decisions, which reduced false positives over time.</li>
+        </ol>
+      </section>
+
+      <section class="cs-section" id="takeaways">
+        <div class="takeaways"><h3>Key takeaways</h3><ol><li>Automating data preparation moves budget from collecting data to testing controls.</li><li>Rules run on full populations catch exceptions that sampling misses.</li><li>Adoption depends on a live pilot and documentation others can use.</li></ol></div>
+      </section>
+
+      <section class="cs-section" id="uae">
+        <div class="uae-box">
+          <span class="wp">Relevance to UAE roles</span>
+          <h3>Relevance to the UAE market</h3>
+          <p>UAE internal audit functions in banking, aviation and government are investing in continuous auditing and data analytics, following the IIA's Global Internal Audit Standards. This experience transfers directly to building continuous-auditing capability on whichever low-code or BI tools a team already runs.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="cs-next no-print">
+    <a class="btn btn-ghost" href="national-health-insurance-audit.html">← National health insurance review</a>
+    <a class="btn btn-primary" href="../index.html#contact">Get in touch →</a>
+  </div>
+</div>
+</main>
+
+<footer><div class="wrap"><span>© 2026 Archish Chugh</span><span>Client names withheld for confidentiality.</span></div></footer>
+<script src="../assets/site.js"></script>
+</body>
+</html>
