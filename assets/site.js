@@ -139,7 +139,7 @@
   var panel = document.getElementById("stage-panel");
   if (panel) {
     var stages = {
-      1: ["Ghost patients and dummy registrations: beneficiaries who didn't exist, or weren't treated, were registered and claimed for.", "Registrations with no treatment trail behind them, and identity details repeated across different beneficiaries.", "Identity verification at enrolment and admission."],
+      1: ["Ghost patients and dummy registrations: beneficiaries who did not exist, or were not treated, were registered and claimed for.", "Registrations with no treatment trail behind them, and identity details repeated across different beneficiaries.", "Identity verification at enrolment and admission."],
       2: ["Payments to ambulance drivers for bringing patients to particular hospitals, never disclosed to the scheme.", "Clusters of admissions coming from the same referral source.", "Referral monitoring and disclosure requirements."],
       3: ["False billing traced to entities connected to the hospital's directors.", "Directors of the provider also appearing on the records of billing counterparties.", "Conflict-of-interest declarations and claim audit."],
       4: ["Scheme payouts were traced after they reached providers, linking the claims findings to the procurement side.", "Transfers to counterparties that lined up with payout dates and amounts.", "Post-payment monitoring of how provider funds were used."],
