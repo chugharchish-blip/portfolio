@@ -12,7 +12,7 @@
 
 <nav class="nav" aria-label="Main">
   <div class="wrap">
-    <a class="brand" href="../index.html">Archish Chugh</a>
+    <a class="brand" href="../index.html">ARCHISH CHUGH</a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
     <ul class="nav-links" id="nav-links">
       <li><a href="../index.html#portfolio">All case studies</a></li>
@@ -29,18 +29,25 @@
   <div class="wrap">
     <p class="crumbs no-print"><a href="../index.html#portfolio">← Case studies</a></p>
     <span class="wp">Case study 03 · Cross-sector · Analytics &amp; automation</span>
-    <h1>Audit data preparation 25% faster, with more time for control testing</h1>
-    <p class="lead">Our engagements were spending too much time collecting, cleaning and reconciling client data before any real audit work started. I built n8n workflows and Power BI models that do most of that preparation automatically, so the team can spend the time on testing.</p>
+    <h1>Automation cut audit data preparation time by 25%</h1>
+    <p class="lead">Engagement teams were spending a large share of fieldwork budget collecting, cleaning and reconciling client data. n8n workflows and a Power BI model now handle most of that preparation, releasing time for control testing.</p>
     <p class="no-print" style="margin-top:1.25rem"><a class="btn btn-ghost" href="../downloads/audit-analytics-automation.pdf" data-pdf>Download PDF</a></p>
-    <p class="print-only muted" style="margin-top:.75rem">Archish Chugh · chugharchish@gmail.com · linkedin.com/in/archish-chugh</p>
+    <p class="print-only" style="color:var(--navy-muted)" style="margin-top:.75rem">Archish Chugh · chugharchish@gmail.com · linkedin.com/in/archish-chugh</p>
     <dl class="cs-meta">
       <div><dt>Used on</dt><dd>EY Risk &amp; Compliance engagements</dd></div>
-      <div><dt>My role</dt><dd>Designed and built the workflows</dd></div>
+      <div><dt>Role</dt><dd>Designed and built the workflows</dd></div>
       <div><dt>Tools</dt><dd>n8n · Power BI · Excel</dd></div>
       <div><dt>Result</dt><dd>25% faster data preparation</dd></div>
     </dl>
   </div>
 </header>
+
+<section class="exec" aria-label="Executive summary">
+  <div class="wrap">
+    <span class="wp">Executive summary</span>
+    <div class="exec-grid"><div><h3>Situation</h3><p>Forensic and controls engagements received client data in many formats: PDFs, ERP exports, registers and spreadsheets.</p></div><div><h3>Complication</h3><p>Manual collection and matching slowed every engagement and reduced the time available for testing.</p></div><div><h3>Approach</h3><p>n8n workflows for ingestion and reconciliation, rule-based exception flags, and a Power BI star-schema model.</p></div><div><h3>Impact</h3><p>25% faster data preparation, used on 2–3 engagements, with full-population testing where the data allows.</p></div></div>
+  </div>
+</section>
 
 <div class="wrap">
   <section style="padding-block:2.5rem 0" aria-label="Headline figures">
@@ -66,15 +73,15 @@
     <div>
       <section class="cs-section" id="problem" style="padding-top:0">
         <span class="wp">01 · The problem</span>
-        <h2>Too much of the budget went on data preparation</h2>
+        <h2>Manual data preparation was consuming fieldwork budget</h2>
         <p>On forensic and controls engagements, data arrives in many forms: bank statements as PDFs, ERP exports, agent sales files, collection registers and emailed spreadsheets. Analysts spent days collecting, reformatting and matching it by hand. The work was slow, error-prone and different on every engagement, and it cut into the time left for control testing.</p>
       </section>
 
       <section class="cs-section" id="workflow">
-        <span class="wp">02 · Exhibit A</span>
-        <h2>The n8n pipeline</h2>
+        <span class="wp">02 · Workflow</span>
+        <h2>An n8n pipeline automates collection, matching and exception flagging</h2>
         <figure class="exhibit" style="margin:0">
-          <div class="exhibit-cap"><h4>Reconciliation workflow, from source to exception list</h4><span class="exhibit-note">Representative design.</span></div>
+          <div class="exhibit-cap"><h4>Exhibit 1: Reconciliation workflow, from source to exception list</h4><span class="exhibit-note">Representative design.</span></div>
           <ol class="pipe">
             <li><span class="node">Trigger</span><b>New data received</b>A scheduled run, or a file dropped into the engagement folder</li>
             <li><span class="node">Ingest</span><b>Collect sources</b>ERP exports, bank statements, agent and sales records, registers</li>
@@ -89,10 +96,10 @@
 
       <section class="cs-section" id="demo">
         <span class="wp">03 · Try it</span>
-        <h2>A reconciliation, run in your browser</h2>
+        <h2>Interactive demo: exception rules applied to a sample reconciliation</h2>
         <p>This is a small version of the matching and exception rules from the workflow. It uses sample data, not client records. Turn rules on or off to see how the exception list changes.</p>
         <figure class="exhibit recon" style="margin:0" data-recon>
-          <div class="exhibit-cap"><h4>Collections: books against bank, March 2025</h4><span class="exhibit-note">Sample data for demonstration</span></div>
+          <div class="exhibit-cap"><h4>Exhibit 2: Collections, books against bank (sample)</h4><span class="exhibit-note">Sample data for demonstration</span></div>
           <fieldset class="rules">
             <legend class="label">Exception rules</legend>
             <label><input type="checkbox" id="r-missing" data-rule="missing" checked> In books, not in bank</label>
@@ -112,10 +119,10 @@
       </section>
 
       <section class="cs-section" id="model">
-        <span class="wp">04 · Exhibit B</span>
-        <h2>The Power BI data model and dashboards</h2>
+        <span class="wp">04 · Data model</span>
+        <h2>A star-schema model links every exception to the control that should have caught it</h2>
         <figure class="exhibit" style="margin:0">
-          <div class="exhibit-cap"><h4>Star schema behind the dashboards</h4><span class="exhibit-note">Representative.</span></div>
+          <div class="exhibit-cap"><h4>Exhibit 3: Star schema behind the dashboards</h4><span class="exhibit-note">Representative.</span></div>
           <div class="schema">
             <div><b>Dim_Entity</b>Legal entities, directors, shared addresses</div>
             <div class="fact"><b>Fact_Transactions</b>Every ledger and bank line, with a match status and exception flags</div>
@@ -130,9 +137,9 @@
 
       <section class="cs-section" id="results">
         <span class="wp">05 · Results</span>
-        <h2>Faster preparation, wider coverage</h2>
+        <h2>Data preparation time fell by 25%, and testing moved from samples to full populations</h2>
         <figure class="exhibit" style="margin:0">
-          <div class="exhibit-cap"><h4>Time to pull and reconcile engagement data</h4><span class="exhibit-note">Index, manual process = 100</span></div>
+          <div class="exhibit-cap"><h4>Exhibit 4: Time to pull and reconcile engagement data</h4><span class="exhibit-note">Index, manual process = 100</span></div>
           <div class="chart-sm">
             <svg viewBox="0 0 600 150" role="img" aria-labelledby="bar-t bar-d">
               <title id="bar-t">Data preparation time, indexed</title>
@@ -156,11 +163,11 @@
 
       <section class="cs-section" id="adoption">
         <span class="wp">06 · Adoption</span>
-        <h2>How the team started using it</h2>
+        <h2>Adoption was driven through a live pilot and a documented handover</h2>
         <ol class="steps">
           <li><b>Start with one real engagement</b>Built the first workflow on a live engagement, so the time saved was measured on real work.</li>
           <li><b>Show managers the exceptions</b>Walked managers through the exception register and how each flag ties back to a control finding.</li>
-          <li><b>Write it down</b>Wrote notes on each workflow's inputs, rules and outputs so other analysts could reuse it without me.</li>
+          <li><b>Write it down</b>Documented each workflow's inputs, rules and outputs so other analysts can reuse it independently.</li>
           <li><b>Improve from feedback</b>Added and adjusted rules based on reviewers' decisions, which reduced false positives over time.</li>
         </ol>
       </section>
@@ -168,8 +175,8 @@
       <section class="cs-section" id="uae">
         <div class="uae-box">
           <span class="wp">Relevance to UAE roles</span>
-          <h3>How this carries over to the UAE</h3>
-          <p>UAE internal audit functions in banking, aviation and government are investing in continuous auditing and data analytics, following the IIA's Global Internal Audit Standards. I can build this kind of automation from day one, using whichever low-code or BI tools the team already runs.</p>
+          <h3>Relevance to the UAE market</h3>
+          <p>UAE internal audit functions in banking, aviation and government are investing in continuous auditing and data analytics, following the IIA's Global Internal Audit Standards. This experience transfers directly to building continuous-auditing capability on whichever low-code or BI tools a team already runs.</p>
         </div>
       </section>
     </div>

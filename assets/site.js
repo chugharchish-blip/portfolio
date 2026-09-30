@@ -107,11 +107,11 @@
   var trace = document.querySelector("[data-trace]");
   if (map && trace) {
     var captions = [
-      "Stage 1 of 6. The consortium lends to the borrower (E1). I fixed the permitted end use of each facility from the sanction letters.",
-      "Stage 2 of 6. The CEO, CTO and directors drew loans. I tested each drawdown against its sanctioned purpose.",
+      "Stage 1 of 6. The consortium lends to the borrower (E1). The permitted end use of each facility was fixed from the sanction letters.",
+      "Stage 2 of 6. The CEO, CTO and directors drew loans. Each drawdown was tested against its sanctioned purpose.",
       "Stage 3 of 6. Money left the borrower for four group companies soon after disbursement. One of these relationships was never disclosed as a related party.",
       "Stage 4 of 6. Layering. Funds passed through five conduit entities with little or no real business.",
-      "Stage 5 of 6. End use. I traced the money to three final destinations outside the purposes the lenders approved.",
+      "Stage 5 of 6. End use. Funds were traced to three final destinations outside the purposes the lenders approved.",
       "Stage 6 of 6. Cover. Fake purchase and billing entries sent paper back to the borrower so the outflows looked like trade payments."
     ];
     var cur = 0, cap = trace.querySelector(".trace-cap"), count = trace.querySelector(".trace-count");
@@ -142,7 +142,7 @@
       1: ["Ghost patients and dummy registrations: beneficiaries who didn't exist, or weren't treated, were registered and claimed for.", "Registrations with no treatment trail behind them, and identity details repeated across different beneficiaries.", "Identity verification at enrolment and admission."],
       2: ["Payments to ambulance drivers for bringing patients to particular hospitals, never disclosed to the scheme.", "Clusters of admissions coming from the same referral source.", "Referral monitoring and disclosure requirements."],
       3: ["False billing traced to entities connected to the hospital's directors.", "Directors of the provider also appearing on the records of billing counterparties.", "Conflict-of-interest declarations and claim audit."],
-      4: ["I traced scheme payouts after they reached providers. This linked the claims findings to the procurement side.", "Transfers to counterparties that lined up with payout dates and amounts.", "Post-payment monitoring of how provider funds were used."],
+      4: ["Scheme payouts were traced after they reached providers, linking the claims findings to the procurement side.", "Transfers to counterparties that lined up with payout dates and amounts.", "Post-payment monitoring of how provider funds were used."],
       5: ["Money was routed through intercompany deposits and counterparty accounts.", "Deposits to and from counterparties with no clear business purpose.", "Related-party and treasury monitoring."],
       6: ["Kickbacks, shell companies and a fake vendor network in procurement. The network was later shut down.", "Vendors with no real operations, and payments that returned to insiders.", "Vendor due diligence and segregation of duties in procure-to-pay."]
     };
