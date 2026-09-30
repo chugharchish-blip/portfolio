@@ -1,6 +1,7 @@
-/* Layout: a consulting report. Navy title band, numbered sections led by an
+/* Layout: a Big 4-style client report. Navy title band, numbered sections led by an
    action title (the heading states the finding), an executive-summary strip,
-   numbered exhibits with source notes, and navy-headed tables. One bright blue
+   numbered exhibits with source notes,, phase chevrons, RAG-rated findings
+   and navy-headed tables. One bright blue
    accent for figures and emphasis; red only for critical findings. */
 :root {
   --bg: #ffffff;
@@ -19,7 +20,7 @@
   --warn: #b86e00;
   --ok: #1e7a4c;
 
-  --f-head: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-head: "Libre Franklin", "Franklin Gothic Medium", Arial, sans-serif;
   --f-body: "Libre Franklin", "Franklin Gothic Book", Arial, sans-serif;
 
   --maxw: 70rem;
@@ -49,7 +50,7 @@ a { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness:
 a:hover { text-decoration-thickness: 2px; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 h1, h2, h3, h4 { margin: 0; line-height: 1.2; text-wrap: balance; }
-h1, h2 { font-family: var(--f-head); font-weight: 600; letter-spacing: -.005em; }
+h1, h2 { font-family: var(--f-head); font-weight: 700; letter-spacing: -.02em; }
 h1 { font-size: clamp(2.1rem, 4.4vw, 3.1rem); }
 h2 { font-size: clamp(1.4rem, 2.4vw, 1.85rem); }
 h3 { font-family: var(--f-body); font-size: 1.08rem; font-weight: 700; }
@@ -97,7 +98,7 @@ p, ul, ol { margin: 0; }
 .facts div { padding: 1.25rem 1.25rem 1.4rem; display: flex; flex-direction: column; gap: .3rem; border-right: 1px solid var(--rule); }
 .facts div:last-child { border-right: 0; }
 .facts dt { font-size: .86rem; color: var(--fg-2); line-height: 1.45; order: 2; }
-.facts dd { margin: 0; font-family: var(--f-head); font-size: 2rem; font-weight: 600; color: var(--accent); order: 1; line-height: 1.1; }
+.facts dd { margin: 0; font-family: var(--f-head); font-size: 2rem; font-weight: 700; color: var(--accent); order: 1; line-height: 1.1; }
 .facts-wrap { box-shadow: 0 1px 0 var(--rule); }
 @media (max-width: 760px) { .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .facts div:nth-child(2) { border-right: 0; } .facts div:nth-child(-n+2) { border-bottom: 1px solid var(--rule); } }
 
@@ -117,9 +118,9 @@ p, ul, ol { margin: 0; }
 .work-list { list-style: none; padding: 0; display: grid; gap: 1rem; }
 .work-list a { display: grid; grid-template-columns: 9rem minmax(0, 1fr) auto; gap: .35rem 1.75rem; padding: 1.4rem 1.5rem; text-decoration: none; color: var(--fg); background: var(--bg); box-shadow: 0 0 0 1px var(--rule); transition: box-shadow .2s; align-items: start; }
 .work-list a:hover { box-shadow: 0 0 0 2px var(--accent); }
-.work-list .fig { grid-row: 1 / span 3; font-family: var(--f-head); font-size: 1.9rem; font-weight: 600; color: var(--accent); line-height: 1.05; }
+.work-list .fig { grid-row: 1 / span 3; font-family: var(--f-head); font-size: 1.9rem; font-weight: 700; color: var(--accent); line-height: 1.05; }
 .work-list .meta { font-size: .74rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--fg-3); }
-.work-list h3 { font-family: var(--f-head); font-size: 1.3rem; font-weight: 600; }
+.work-list h3 { font-family: var(--f-head); font-size: 1.3rem; font-weight: 700; }
 .work-list p { color: var(--fg-2); font-size: .94rem; max-width: 44rem; }
 .work-list .go { grid-column: 3; grid-row: 1 / span 3; align-self: center; font-weight: 600; font-size: .88rem; color: var(--accent); white-space: nowrap; }
 @media (max-width: 700px) { .work-list a { grid-template-columns: 1fr; } .work-list .fig, .work-list .go { grid-row: auto; grid-column: 1; } }
@@ -195,7 +196,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0; border-top: 4px solid var(--accent); box-shadow: 0 0 0 1px var(--rule); }
 .kpi { display: grid; gap: .25rem; align-content: start; padding: 1rem 1.1rem 1.1rem; border-right: 1px solid var(--rule); }
 .kpi:last-child { border-right: 0; }
-.kpi b { font-family: var(--f-head); font-size: 1.75rem; font-weight: 600; color: var(--accent); line-height: 1.1; }
+.kpi b { font-family: var(--f-head); font-size: 1.75rem; font-weight: 700; color: var(--accent); line-height: 1.1; }
 .kpi span { font-size: .86rem; color: var(--fg-2); line-height: 1.45; }
 .cs-body { display: grid; grid-template-columns: 12rem minmax(0, 1fr); gap: 3rem; padding-block: 3rem; }
 .toc { position: sticky; top: 5rem; align-self: start; display: grid; gap: .1rem; font-size: .86rem; border-left: 2px solid var(--rule); }
@@ -220,13 +221,14 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 .diagram { overflow-x: auto; }
 .diagram svg { display: block; min-width: 640px; width: 100%; height: auto; }
 .diagram svg text, .chart-sm svg text { font-family: var(--f-body); }
-.sev { font-size: .78rem; font-weight: 700; white-space: nowrap; text-transform: uppercase; letter-spacing: .04em; }
-.sev.crit { color: var(--crit); } .sev.high { color: var(--warn); } .sev.med { color: var(--fg-2); }
+.sev { display: inline-block; font-size: .72rem; font-weight: 700; white-space: nowrap; text-transform: uppercase; letter-spacing: .05em; padding: .2rem .55rem; border-radius: 99px; color: #fff; }
+.sev.crit { background: #c0352b; } .sev.high { background: #d98b0b; } .sev.med { background: #2e8a57; }
+.rag-key { display: flex; flex-wrap: wrap; gap: .4rem 1rem; font-size: .8rem; color: var(--fg-3); align-items: center; }
 .callout { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 1rem 1.25rem; }
 .callout p { color: var(--fg); }
 .uae-box { background: var(--navy); color: var(--navy-fg); padding: 1.4rem 1.6rem; display: grid; gap: .6rem; }
 .uae-box .wp { color: var(--navy-muted); }
-.uae-box h3 { color: var(--navy-fg); font-family: var(--f-head); font-size: 1.3rem; font-weight: 600; }
+.uae-box h3 { color: var(--navy-fg); font-family: var(--f-head); font-size: 1.3rem; font-weight: 700; }
 .cs-section .uae-box p { color: var(--navy-muted); }
 .tools { display: flex; flex-wrap: wrap; gap: .4rem .5rem; }
 .tool { font-size: .84rem; padding: .25rem .65rem; background: var(--surface); color: var(--fg-2); box-shadow: 0 0 0 1px var(--rule); }
@@ -331,7 +333,7 @@ g[data-stage].active rect { stroke: var(--accent); stroke-width: 3; }
 .rules label { display: inline-flex; align-items: center; gap: .4rem; font-size: .88rem; color: var(--fg-2); cursor: pointer; }
 .rules input { accent-color: var(--accent); width: 1rem; height: 1rem; }
 .recon-sum { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; align-items: center; font-size: .9rem; color: var(--fg-2); padding-block: .6rem; border-block: 1px solid var(--rule); }
-.recon-sum b { font-family: var(--f-head); font-weight: 600; color: var(--accent); font-size: 1.3rem; }
+.recon-sum b { font-family: var(--f-head); font-weight: 700; color: var(--accent); font-size: 1.3rem; }
 .recon-sum .x b { color: var(--crit); }
 .recon-sum .tbtn { margin-left: auto; }
 .recon-table td.r, .recon-table th.r { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -361,3 +363,32 @@ g[data-stage].active rect { stroke: var(--accent); stroke-width: 3; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   a { color: inherit; text-decoration: none; }
 }
+
+/* ================= BIG 4 REPORT DEVICES ================= */
+.phases { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.phases li { position: relative; background: var(--navy); color: #fff; padding: .85rem 1.6rem .95rem 1.6rem; clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 14px 50%); display: grid; gap: .25rem; align-content: start; min-height: 100%; }
+.phases li:first-child { clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%); padding-left: 1rem; }
+.phases li:nth-child(even) { background: var(--accent); }
+.phases b { font-size: .95rem; }
+.phases small { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+.phases span { font-size: .82rem; line-height: 1.4; color: rgba(255,255,255,.88); }
+@media (max-width: 760px) { .phases { grid-template-columns: 1fr; } .phases li, .phases li:first-child { clip-path: none; padding-left: 1rem; } }
+.rec-table td:last-child, .rec-table th:last-child { width: 7rem; }
+.takeaways { border: 2px solid var(--navy); padding: 1.25rem 1.4rem; display: grid; gap: .75rem; }
+.takeaways h3 { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.cs-section .takeaways ol { margin: 0; padding: 0; list-style: none; display: grid; gap: .6rem; counter-reset: tk; }
+.takeaways li { counter-increment: tk; display: grid; grid-template-columns: 1.8rem minmax(0, 1fr); gap: .5rem; color: var(--fg) !important; font-weight: 500; }
+.takeaways li::before { content: counter(tk); width: 1.5rem; height: 1.5rem; display: grid; place-items: center; background: var(--accent); color: #fff; font-size: .78rem; font-weight: 700; border-radius: 50%; }
+.cover { display: none; }
+@media print {
+  .cover { display: flex !important; flex-direction: column; justify-content: space-between; height: 265mm; background: #0b2344 !important; color: #fff; padding: 22mm 18mm; break-after: page; margin: -12mm -12mm 0; }
+  .cover .c-top { font-size: 9pt; font-weight: 700; letter-spacing: .14em; color: #a9b8d0; }
+  .cover h1 { font-size: 30pt; line-height: 1.12; margin: 8mm 0 5mm; color: #fff; max-width: 150mm; }
+  .cover .c-sub { font-size: 12pt; color: #d6deeb; max-width: 150mm; }
+  .cover .c-rule { width: 30mm; height: 3px; background: #1f5fd6; margin-top: 10mm; }
+  .cover .c-by { font-size: 11pt; font-weight: 700; }
+  .cover .c-meta { font-size: 9pt; color: #a9b8d0; margin-top: 2mm; }
+  .cover .c-note { font-size: 8pt; color: #a9b8d0; border-top: 1px solid rgba(255,255,255,.25); padding-top: 4mm; margin-top: 8mm; }
+  .phases li { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+.rec-table td:first-child { font-weight: 500; }
