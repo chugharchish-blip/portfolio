@@ -107,12 +107,12 @@
   var trace = document.querySelector("[data-trace]");
   if (map && trace) {
     var captions = [
-      "Stage 1 of 6. The consortium lends to the borrower (E1). The permitted end use of each facility was fixed from the sanction letters.",
+      "Stage 1 of 6. The consortium lends to the borrower (E1). The permitted end use of each loan was taken from the sanction letters.",
       "Stage 2 of 6. The CEO, CTO and directors drew loans. Each drawdown was tested against its sanctioned purpose.",
-      "Stage 3 of 6. Money left the borrower for four group companies soon after disbursement. One of these relationships was never disclosed as a related party.",
-      "Stage 4 of 6. Layering. Funds passed through five conduit entities with little or no real business.",
-      "Stage 5 of 6. End use. Funds were traced to three final destinations outside the purposes the lenders approved.",
-      "Stage 6 of 6. Cover. Fake purchase and billing entries sent paper back to the borrower so the outflows looked like trade payments."
+      "Stage 3 of 6. Money moved from the borrower to four group companies soon after disbursement. One of these was never disclosed as a related party.",
+      "Stage 4 of 6. Funds passed through five conduit entities that had little actual business.",
+      "Stage 5 of 6. Funds were traced to three final destinations that the lenders had not approved.",
+      "Stage 6 of 6. Fake purchase and billing entries were recorded back at the borrower so the outflows looked like trade payments."
     ];
     var cur = 0, cap = trace.querySelector(".trace-cap"), count = trace.querySelector(".trace-count");
     var next = trace.querySelector("[data-trace-next]"), prev = trace.querySelector("[data-trace-prev]");
