@@ -417,3 +417,25 @@ g[data-stage].active rect { stroke: var(--accent); stroke-width: 3; }
 .progress i { background: var(--gold); }
 .section.alt { background: var(--surface); }
 @media print { .cs-hero::before { background: #1c1d21; } .cs-hero { background-image: none; } .sec-head h2::after { display: none; } }
+
+/* ================= n8n WORKFLOW CANVAS ================= */
+.n8n-wrap svg { min-width: 0; border-radius: 6px; }
+@media (max-width: 700px) { .n8n-wrap svg { min-width: 720px; } }
+.nn-bg { fill: var(--surface); }
+.nn-dot { fill: var(--rule-2); }
+.nn-n { fill: var(--bg); stroke: var(--rule-2); stroke-width: 2; }
+.nn-n.nn-key { stroke: var(--gold); }
+.nn-i { stroke: var(--accent); fill: var(--accent); stroke-linecap: round; stroke-linejoin: round; }
+path.nn-i[fill="none"], circle.nn-i[fill="none"] { fill: none; }
+.nn-t { font-size: 15px; font-weight: 800; fill: var(--accent); font-family: var(--f-body); }
+.nn-name { font-size: 15px; font-weight: 700; fill: var(--fg); }
+.nn-sub { font-size: 13px; fill: var(--fg-3); }
+.nn-e { stroke: var(--fg-3); stroke-width: 2; fill: none; }
+.nn-o { fill: var(--fg-3); }
+.nn-ahp { fill: var(--fg-3); }
+.nn-l { font-size: 11px; font-weight: 700; fill: var(--fg-3); }
+g[data-tip]:hover .nn-n, g[data-tip]:focus .nn-n { stroke: var(--gold); stroke-width: 3; }
+.nn-table { min-width: 600px; }
+.nn-table td:first-child { min-width: 7rem; }
+.nn-table td:nth-child(2) { color: var(--fg); font-weight: 600; min-width: 9rem; }
+@media print { .n8n-wrap svg { min-width: 0; } }
