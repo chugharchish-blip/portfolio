@@ -168,10 +168,10 @@
       ["2025-03-03", "Agent A collection", 48250, 48250],
       ["2025-03-04", "Agent B collection", 120000, 120000],
       ["2025-03-05", "Counter sales", 36780, 35780],
-      ["2025-03-08", "Voucher V-114", 25500, 25500],
+      ["2025-03-08", "Cash deposit CD-114", 25500, 25500],
       ["2025-03-10", "Agent C collection", 62410, null],
       ["2025-03-11", "Agent A collection", 51090, 51090],
-      ["2025-03-12", "Refund R-22", 50000, 50000],
+      ["2025-03-12", "Agent E collection", 50000, 50000],
       ["2025-03-13", "Unidentified receipt", null, 18600],
       ["2025-03-14", "Agent D collection", 44375, 44375]
     ];

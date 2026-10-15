@@ -15,7 +15,7 @@
     <a class="brand" href="../index.html">ARCHISH CHUGH</a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
     <ul class="nav-links" id="nav-links">
-      <li><a href="../index.html#portfolio">All case studies</a></li>
+      <li><a href="../index.html#work">All case studies</a></li>
       <li><a href="banking-consortium-fraud-investigation.html">Banking</a></li>
       <li><a href="national-health-insurance-audit.html">Health insurance</a></li>
       <li><a href="../downloads/audit-analytics-automation.pdf" data-pdf>PDF</a></li>
@@ -33,7 +33,7 @@
 
 <header class="cs-hero">
   <div class="wrap">
-    <p class="crumbs no-print"><a href="../index.html#portfolio">← Case studies</a></p>
+    <p class="crumbs no-print"><a href="../index.html#work">← Case studies</a></p>
     <span class="wp">Case study 03 · Cross-sector · Analytics &amp; automation</span>
     <h1>Audit Analytics and Automation: 25% Faster Data Preparation</h1>
     <p class="lead">Set up n8n and Power BI workflows to pull and reconcile audit data 25% faster. This cut engagement preparation time and gave more time for actual control testing.</p>
@@ -60,7 +60,7 @@
     <div class="kpis">
       <div class="kpi"><b class="num">25%</b><span>faster data pull and reconciliation</span></div>
       <div class="kpi"><b class="num">2–3</b><span>engagements using the workflows so far</span></div>
-      <div class="kpi"><b class="num">100%</b><span>of transactions tested, instead of samples, where the data allows</span></div>
+      <div class="kpi"><b>Full population</b><span>testing instead of samples, where the data allows</span></div>
     </div>
   </section>
 
@@ -88,17 +88,25 @@
         <span class="wp">02</span>
         <h2>n8n Workflow</h2>
         <figure class="exhibit" style="margin:0">
-          <div class="exhibit-cap"><h4>Exhibit 1: Reconciliation Workflow, From Source to Exception List</h4><span class="exhibit-note">Representative design</span></div>
-          <ol class="pipe">
-            <li><span class="node">Trigger</span><b>New data received</b>A scheduled run, or a file dropped into the engagement folder</li>
-            <li><span class="node">Ingest</span><b>Collect sources</b>ERP exports, bank statements, agent and sales records, registers</li>
-            <li><span class="node">Transform</span><b>Standardise</b>Map fields to one layout, clean dates and amounts, remove duplicates</li>
-            <li><span class="node">Match</span><b>Reconcile</b>Match the ledger to bank or agent records by key, amount and date window</li>
-            <li class="flag"><span class="node">Rules</span><b>Flag exceptions</b>Unmatched items, round amounts, weekend postings, related-party hits</li>
-            <li><span class="node">Publish</span><b>Refresh Power BI</b>Load the results into the model and alert the team with the exceptions to review</li>
-          </ol>
+          <div class="exhibit-cap"><h4>Exhibit 1: n8n Workflow Canvas</h4><span class="exhibit-note">Representative design. Hover over a node for detail.</span></div>
+          <div class="diagram n8n-wrap">
+<svg class="n8n-canvas" viewBox="0 0 1080 380" role="img" aria-labelledby="nn-t nn-d"><title id="nn-t">n8n workflow: audit data reconciliation</title><desc id="nn-d">An n8n workflow. A schedule trigger downloads the ledger export and bank statement from OneDrive, extracts rows from each file, maps both to the same columns, merges them on reference and amount, applies exception rules in a Code node, and adds the exceptions to an Excel 365 register. The workflow then refreshes the Power BI dataset through an HTTP request and emails a summary through Outlook.</desc><defs><pattern id="nn-dots" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" class="nn-dot"/></pattern><marker id="nn-ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10z" class="nn-ahp"/></marker></defs><rect width="1080" height="380" class="nn-bg"/><rect width="1080" height="380" fill="url(#nn-dots)"/><g fill="none"><path class="nn-e" d="M114 200 C140 200 130 110 154 110" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="110" cy="200" r="4"/><path class="nn-e" d="M114 200 C140 200 130 290 154 290" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="110" cy="200" r="4"/><path class="nn-e" d="M224 110 C250 110 250 110 274 110" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="220" cy="110" r="4"/><path class="nn-e" d="M224 290 C250 290 250 290 274 290" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="220" cy="290" r="4"/><path class="nn-e" d="M344 110 C370 110 370 110 394 110" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="340" cy="110" r="4"/><path class="nn-e" d="M344 290 C370 290 370 290 394 290" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="340" cy="290" r="4"/><path class="nn-e" d="M464 110 C490 110 490 200 514 200" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="460" cy="110" r="4"/><path class="nn-e" d="M464 290 C490 290 490 200 514 200" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="460" cy="290" r="4"/><path class="nn-e" d="M584 200 C610 200 610 200 634 200" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="580" cy="200" r="4"/><path class="nn-e" d="M704 200 C730 200 730 200 754 200" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="700" cy="200" r="4"/><path class="nn-e" d="M824 200 C850 200 850 200 874 200" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="820" cy="200" r="4"/><path class="nn-e" d="M944 200 C970 200 970 200 994 200" marker-end="url(#nn-ah)"/><circle class="nn-o" cx="940" cy="200" r="4"/></g><g tabindex="0" data-tip="Schedule Trigger (Weekdays, 7:00): Starts the run every weekday morning"><path class="nn-n" d="M80 170 H98 Q110 170 110 182 V218 Q110 230 98 230 H80 A30 30 0 0 1 80 170 Z"/><path class="nn-i" d="M83 186 L72 202 H80 L77 214 L88 198 H80 Z"/><text class="nn-name" x="80" y="250" text-anchor="middle">Schedule Trigger</text><text class="nn-sub" x="80" y="267" text-anchor="middle">Weekdays, 7:00</text></g><g tabindex="0" data-tip="OneDrive (Ledger export): Downloads the client's ledger export from the engagement folder"><rect class="nn-n" x="160" y="80" width="60" height="60" rx="12"/><path class="nn-i" d="M179 117 h22 a7 7 0 0 0 0-14 a10 10 0 0 0-19-2 a7 7 0 0 0-3 16z" fill="none" stroke-width="2.2"/><text class="nn-name" x="190" y="160" text-anchor="middle">OneDrive</text><text class="nn-sub" x="190" y="177" text-anchor="middle">Ledger export</text></g><g tabindex="0" data-tip="OneDrive (Bank statement): Downloads the bank statement file"><rect class="nn-n" x="160" y="260" width="60" height="60" rx="12"/><path class="nn-i" d="M179 297 h22 a7 7 0 0 0 0-14 a10 10 0 0 0-19-2 a7 7 0 0 0-3 16z" fill="none" stroke-width="2.2"/><text class="nn-name" x="190" y="340" text-anchor="middle">OneDrive</text><text class="nn-sub" x="190" y="357" text-anchor="middle">Bank statement</text></g><g tabindex="0" data-tip="Extract from File (XLSX): Reads the ledger rows from the Excel file"><rect class="nn-n" x="280" y="80" width="60" height="60" rx="12"/><path class="nn-i" d="M302 98 h11 l6 6 v18 h-17 z M313 98 v6 h6" fill="none" stroke-width="2.2"/><text class="nn-name" x="310" y="160" text-anchor="middle">Extract from File</text><text class="nn-sub" x="310" y="177" text-anchor="middle">XLSX</text></g><g tabindex="0" data-tip="Extract from File (CSV): Reads the bank rows from the CSV file"><rect class="nn-n" x="280" y="260" width="60" height="60" rx="12"/><path class="nn-i" d="M302 278 h11 l6 6 v18 h-17 z M313 278 v6 h6" fill="none" stroke-width="2.2"/><text class="nn-name" x="310" y="340" text-anchor="middle">Extract from File</text><text class="nn-sub" x="310" y="357" text-anchor="middle">CSV</text></g><g tabindex="0" data-tip="Edit Fields (Map columns): Maps both sources to the same columns: date, reference, amount"><rect class="nn-n" x="400" y="80" width="60" height="60" rx="12"/><path class="nn-i" d="M420 103 h20 M420 110 h20 M420 117 h12" fill="none" stroke-width="2.6"/><text class="nn-name" x="430" y="160" text-anchor="middle">Edit Fields</text><text class="nn-sub" x="430" y="177" text-anchor="middle">Map columns</text></g><g tabindex="0" data-tip="Edit Fields (Map columns): Maps both sources to the same columns: date, reference, amount"><rect class="nn-n" x="400" y="260" width="60" height="60" rx="12"/><path class="nn-i" d="M420 283 h20 M420 290 h20 M420 297 h12" fill="none" stroke-width="2.6"/><text class="nn-name" x="430" y="340" text-anchor="middle">Edit Fields</text><text class="nn-sub" x="430" y="357" text-anchor="middle">Map columns</text></g><g tabindex="0" data-tip="Merge (Match ref + amount): Matches ledger and bank lines on reference, amount and date window"><rect class="nn-n" x="520" y="170" width="60" height="60" rx="12"/><path class="nn-i" d="M539 191 q10 0 11 9 M539 209 q10 0 11 -9 M550 200 h11 M556 195 l5 5 l-5 5" fill="none" stroke-width="2.4"/><text class="nn-name" x="550" y="250" text-anchor="middle">Merge</text><text class="nn-sub" x="550" y="267" text-anchor="middle">Match ref + amount</text></g><g tabindex="0" data-tip="Code (Exception rules): JavaScript rules: unmatched items, amount mismatches, round amounts and weekend postings"><rect class="nn-n nn-key" x="640" y="170" width="60" height="60" rx="12"/><text x="670" y="205" text-anchor="middle" class="nn-t">&lt;/&gt;</text><text class="nn-name" x="670" y="250" text-anchor="middle">Code</text><text class="nn-sub" x="670" y="267" text-anchor="middle">Exception rules</text></g><g tabindex="0" data-tip="Excel 365 (Exception register): Appends each exception to the register used for review"><rect class="nn-n" x="760" y="170" width="60" height="60" rx="12"/><path class="nn-i" d="M779 190 h22 v20 h-22 z M779 197 h22 M779 204 h22 M786 190 v20 M794 190 v20" fill="none" stroke-width="1.8"/><text class="nn-name" x="790" y="250" text-anchor="middle">Excel 365</text><text class="nn-sub" x="790" y="267" text-anchor="middle">Exception register</text></g><g tabindex="0" data-tip="HTTP Request (Refresh Power BI): Calls the Power BI REST API to refresh the dataset"><rect class="nn-n" x="880" y="170" width="60" height="60" rx="12"/><circle class="nn-i" cx="910" cy="200" r="11" fill="none" stroke-width="2"/><path class="nn-i" d="M899 200 h22 M910 189 c-7 7 -7 15 0 22 M910 189 c7 7 7 15 0 22" fill="none" stroke-width="1.6"/><text class="nn-name" x="910" y="250" text-anchor="middle">HTTP Request</text><text class="nn-sub" x="910" y="267" text-anchor="middle">Refresh Power BI</text></g><g tabindex="0" data-tip="Outlook (Email summary): Emails the team a summary with counts of matched items and exceptions"><rect class="nn-n" x="1000" y="170" width="60" height="60" rx="12"/><path class="nn-i" d="M1018 192 h24 v16 h-24 z M1018 192 l12 9 l12 -9" fill="none" stroke-width="2.2"/><text class="nn-name" x="1030" y="250" text-anchor="middle">Outlook</text><text class="nn-sub" x="1030" y="267" text-anchor="middle">Email summary</text></g></svg>
+          </div>
+          <div class="table-scroll">
+            <table class="findings nn-table">
+              <thead><tr><th>Step</th><th>n8n node</th><th>What it does</th></tr></thead>
+              <tbody>
+                <tr><td>1. Start</td><td>Schedule Trigger</td><td>Runs the workflow every weekday morning.</td></tr>
+                <tr><td>2. Collect</td><td>OneDrive, Extract from File</td><td>Downloads the ledger export (XLSX) and bank statement (CSV) from the engagement folder and reads the rows.</td></tr>
+                <tr><td>3. Standardise</td><td>Edit Fields</td><td>Maps both sources to the same columns: date, reference and amount.</td></tr>
+                <tr><td>4. Match</td><td>Merge</td><td>Matches ledger and bank lines on reference and amount.</td></tr>
+                <tr><td>5. Test</td><td>Code</td><td>Applies the exception rules (unmatched items, amount mismatches, round amounts, weekend postings) and passes on only the exceptions.</td></tr>
+                <tr><td>6. Report</td><td>Excel 365, HTTP Request, Outlook</td><td>Adds exceptions to the review register, refreshes the Power BI dataset through its REST API, and emails the team a summary.</td></tr>
+              </tbody>
+            </table>
+          </div>
         </figure>
-        <p>On the aviation engagements, the workflow matched counter ticket sales against agent records and matched cash collections against the books. The exceptions it produced, such as collections never recorded and excess baggage not charged, became the starting point for control testing rather than something found at the end.</p>
+        <p>The same workflow pattern is used for other reconciliations, such as sales records against agent records, by changing the source files and the matching keys. Unmatched items then become the starting point for control testing rather than something found at the end.</p>
       </section>
 
       <section class="cs-section" id="demo">
@@ -146,7 +154,7 @@
         <span class="wp">05</span>
         <h2>Results</h2>
         <figure class="exhibit" style="margin:0">
-          <div class="exhibit-cap"><h4>Exhibit 4: Time to Pull and Reconcile Engagement Data</h4><span class="exhibit-note">Index, manual process = 100</span></div>
+          <div class="exhibit-cap"><h4>Exhibit 4: Time to Pull and Reconcile Engagement Data</h4><span class="exhibit-note">Index: manual process = 100; lower is faster</span></div>
           <div class="chart-sm">
             <svg viewBox="0 0 600 150" role="img" aria-labelledby="bar-t bar-d">
               <title id="bar-t">Data preparation time, indexed</title>
@@ -157,7 +165,7 @@
               <path d="M150 30 H566 a4 4 0 0 1 4 4 V52 a4 4 0 0 1 -4 4 H150 Z" class="bar-a" tabindex="0" data-tip="Manual preparation: index 100"/>
               <text x="140" y="92" text-anchor="end" class="c-lbl">Automated</text>
               <path d="M150 76 H461 a4 4 0 0 1 4 4 V98 a4 4 0 0 1 -4 4 H150 Z" class="bar-b" tabindex="0" data-tip="With n8n and Power BI: index 75 (25% faster)"/>
-              <text x="475" y="94" class="c-val">75 · −25%</text>
+              <text x="475" y="94" class="c-val">75</text>
             </svg>
           </div>
         </figure>
@@ -176,7 +184,7 @@
           <li><b>Piloted on a live engagement</b>Built the first workflow on a live engagement, so the time saved was measured on real work.</li>
           <li><b>Walked managers through the exceptions</b>Walked managers through the exception register and how each flag ties back to a control finding.</li>
           <li><b>Documented the workflows</b>Documented each workflow's inputs, rules and outputs so other analysts can reuse it independently.</li>
-          <li><b>Improved the rules from feedback</b>Added and adjusted rules based on reviewers' decisions, which reduced false positives over time.</li>
+          <li><b>Improved the rules from feedback</b>Added and adjusted rules based on reviewers' decisions on each exception.</li>
         </ol>
       </section>
 
