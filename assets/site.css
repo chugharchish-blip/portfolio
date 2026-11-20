@@ -439,3 +439,73 @@ g[data-tip]:hover .nn-n, g[data-tip]:focus .nn-n { stroke: var(--gold); stroke-w
 .nn-table td:first-child { min-width: 7rem; }
 .nn-table td:nth-child(2) { color: var(--fg); font-weight: 600; min-width: 9rem; }
 @media print { .n8n-wrap svg { min-width: 0; } }
+
+/* ================= MOTION =================
+   Guided by UI UX Pro Max motion rules: subtle scroll reveals (400ms, 14px rise,
+   ease-out), short staggers, 150-250ms hover feedback, and everything off under
+   prefers-reduced-motion. Content is visible without JavaScript. */
+:root {
+  --ease-out: cubic-bezier(.22, .7, .2, 1);
+  --dur-fast: 150ms;
+  --dur-base: 220ms;
+  --dur-reveal: 420ms;
+}
+.motion .reveal { opacity: 0; transform: translateY(14px); transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out); }
+.motion .reveal.in { opacity: 1; transform: none; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.motion .hero .wp, .motion .hero h1, .motion .hero .sub, .motion .hero .lead, .motion .hero .btns, .motion .hero .facts,
+.motion .cs-hero .crumbs, .motion .cs-hero .wp, .motion .cs-hero h1, .motion .cs-hero .lead, .motion .cs-hero .no-print, .motion .cs-hero .cs-meta {
+  animation: rise 520ms var(--ease-out) both;
+}
+.motion .hero h1, .motion .cs-hero .wp { animation-delay: 70ms; }
+.motion .hero .sub, .motion .cs-hero h1 { animation-delay: 140ms; }
+.motion .hero .lead, .motion .cs-hero .lead { animation-delay: 210ms; }
+.motion .hero .btns, .motion .cs-hero .no-print { animation-delay: 280ms; }
+.motion .hero .facts, .motion .cs-hero .cs-meta { animation-delay: 360ms; }
+
+/* hover and press feedback */
+.btn, .tbtn, .chip, .copy, .stage-tabs button { transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, border-color var(--dur-fast) ease, transform var(--dur-fast) ease; }
+.btn:active, .tbtn:active, .chip:active, .copy:active { transform: scale(.97); }
+.area, .skill-cols > div, .work-list a { transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+@media (hover: hover) {
+  .area:hover, .skill-cols > div:hover { transform: translateY(-3px); box-shadow: 0 10px 24px -14px rgba(28, 29, 33, .35), 0 0 0 1px var(--rule-2); }
+  .work-list a:hover { transform: translateY(-2px); box-shadow: 0 0 0 2px var(--gold), 0 12px 28px -18px rgba(28, 29, 33, .4); }
+  .work-list a:hover .go { transform: translateX(4px); }
+}
+.work-list .go { transition: transform var(--dur-base) var(--ease-out); }
+.see { transition: letter-spacing var(--dur-base) var(--ease-out); }
+.see:hover { letter-spacing: .02em; }
+
+/* chart and diagram motion */
+.chart-sm .bar-a, .chart-sm .bar-b { transform-box: fill-box; transform-origin: left center; }
+.motion .chart-sm.pending .bar-a, .motion .chart-sm.pending .bar-b { transform: scaleX(0); }
+.motion .chart-sm .bar-a, .motion .chart-sm .bar-b { transition: transform 800ms var(--ease-out); }
+.motion .chart-sm .bar-b { transition-delay: 200ms; }
+
+/* n8n run */
+.n8n-run-bar { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; }
+.n8n-status { font-size: .88rem; color: var(--fg-2); }
+.nn-n { transition: stroke var(--dur-base) ease, stroke-width var(--dur-base) ease; }
+g.nn-active .nn-n { stroke: var(--gold); stroke-width: 3.5; }
+g.nn-ok .nn-n { stroke: var(--ok); stroke-width: 3; }
+.nn-badge { opacity: 0; transition: opacity var(--dur-base) ease; }
+g.nn-ok .nn-badge { opacity: 1; }
+.nn-badge circle { fill: var(--ok); }
+.nn-badge path { stroke: #fff; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.nn-e.nn-flow { stroke: var(--ok); stroke-dasharray: 6 5; animation: nn-dash 600ms linear infinite; }
+@keyframes nn-dash { to { stroke-dashoffset: -22; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .motion .reveal { opacity: 1; transform: none; }
+  .nn-e.nn-flow { animation: none; }
+}
+@media print {
+  .motion .reveal, .motion .reveal.in { opacity: 1 !important; transform: none !important; }
+  .motion .chart-sm.pending .bar-a, .motion .chart-sm.pending .bar-b { transform: none !important; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .n8n-run-bar { display: none !important; }
+}
+.motion .n8n-canvas g[data-tip], .motion .n8n-canvas .nn-e, .motion .n8n-canvas .nn-o { transition-property: opacity, stroke, stroke-width; transition-duration: 380ms; }
+.motion .n8n-canvas.nn-pending g[data-tip], .motion .n8n-canvas.nn-pending .nn-e, .motion .n8n-canvas.nn-pending .nn-o { opacity: 0; }
+@media print { .motion .n8n-canvas.nn-pending g[data-tip], .motion .n8n-canvas.nn-pending .nn-e, .motion .n8n-canvas.nn-pending .nn-o { opacity: 1 !important; } }

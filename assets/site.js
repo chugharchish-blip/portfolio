@@ -251,3 +251,154 @@
   });
   document.addEventListener("focusout", function () { tip.classList.remove("on"); });
 })();
+
+/* ---------- Motion ----------
+   Plain JavaScript, no libraries. Everything is visible before this runs, and none
+   of it runs when the visitor's device asks for reduced motion. */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce || !("IntersectionObserver" in window)) return;
+  var root = document.documentElement;
+  root.classList.add("motion");
+  var vh = window.innerHeight;
+  var below = function (el) { return el.getBoundingClientRect().top > vh * 0.92; };
+  var once = function (els, cb, opts) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); cb(e.target); } });
+    }, opts || { rootMargin: "0px 0px -10% 0px" });
+    els.forEach(function (el) { io.observe(el); });
+  };
+
+  // 1. Scroll reveal with a short stagger for items that enter together
+  var sel = [
+    ".sec-head", ".area", ".work-list li", ".other > div", ".cv li", ".skill-cols > div", "#skills .table-scroll", ".contact-item",
+    ".exec-grid > div", ".kpi", ".cs-section > .wp", ".cs-section > h2", ".cs-section > h3", ".cs-section > p", ".cs-section > ul",
+    ".cs-section > .table-scroll", ".cs-section > .rag-key", ".phases li", ".steps li", ".exhibit", ".callout", ".takeaways", ".uae-box"
+  ].join(",");
+  var targets = Array.prototype.filter.call(document.querySelectorAll(sel), below);
+  targets.forEach(function (el) { el.classList.add("reveal"); });
+  var batch = [], timer = null;
+  var flush = function () {
+    batch.sort(function (a, b) { return a.compareDocumentPosition(b) & 4 ? -1 : 1; });
+    batch.forEach(function (el, i) {
+      el.style.transitionDelay = Math.min(i * 70, 420) + "ms";
+      el.classList.add("in");
+      el.addEventListener("transitionend", function done() {
+        el.removeEventListener("transitionend", done);
+        el.style.transitionDelay = ""; el.classList.remove("reveal", "in");
+      });
+    });
+    batch = []; timer = null;
+  };
+  once(targets, function (el) { batch.push(el); if (!timer) timer = setTimeout(flush, 16); });
+
+  // 2. Count up headline figures such as "₹347 cr", "25%" and "13"
+  var ease = function (t) { return 1 - Math.pow(1 - t, 3); };
+  var count = function (el) {
+    var text = el.textContent, m = text.match(/^(\D*)(\d+)(\D*)$/);
+    if (!m) return;
+    var end = +m[2], start = null, dur = 1100;
+    el.setAttribute("aria-label", text);
+    var step = function (ts) {
+      if (start === null) start = ts;
+      var t = Math.min(1, (ts - start) / dur);
+      el.textContent = m[1] + Math.round(end * ease(t)) + m[3];
+      if (t < 1) requestAnimationFrame(step); else el.textContent = text;
+    };
+    requestAnimationFrame(step);
+  };
+  once(Array.prototype.slice.call(document.querySelectorAll(".facts dd, .kpi b, .work-list .fig")), function (el) {
+    setTimeout(function () { count(el); }, below(el) ? 150 : 450);
+  }, { threshold: 0.6 });
+
+  // 3. Fund-flow map: lines draw themselves stage by stage the first time it scrolls into view
+  var fundmap = document.getElementById("fundmap");
+  if (fundmap) {
+    once([fundmap], function () {
+      fundmap.querySelectorAll("path[data-step]").forEach(function (p) {
+        var stepNo = +p.getAttribute("data-step"), delay = (stepNo - 1) * 220;
+        if (p.classList.contains("e-fake")) {
+          p.style.opacity = "0"; p.style.transition = "opacity 500ms ease " + (delay + 300) + "ms";
+          requestAnimationFrame(function () { requestAnimationFrame(function () { p.style.opacity = ""; }); });
+          return;
+        }
+        var len = p.getTotalLength();
+        p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+        p.getBoundingClientRect();
+        p.style.transition = "stroke-dashoffset 700ms cubic-bezier(.22,.7,.2,1) " + delay + "ms";
+        p.style.strokeDashoffset = "0";
+        setTimeout(function () { p.style.strokeDasharray = ""; p.style.strokeDashoffset = ""; p.style.transition = ""; }, delay + 800);
+      });
+    }, { threshold: 0.35 });
+  }
+
+  // 4. Bar chart grows when it scrolls into view
+  document.querySelectorAll(".chart-sm").forEach(function (c) {
+    if (!below(c)) return;
+    c.classList.add("pending");
+    once([c], function () { requestAnimationFrame(function () { c.classList.remove("pending"); }); }, { threshold: 0.5 });
+  });
+
+  // 5. n8n canvas: nodes appear left to right, edges follow
+  var canvas = document.querySelector(".n8n-canvas");
+  if (canvas && below(canvas)) {
+    canvas.querySelectorAll("g[data-tip], .nn-e, .nn-o").forEach(function (el) {
+      el.style.transitionDelay = Math.round(el.getBBox().x * 0.9) + "ms";
+    });
+    canvas.classList.add("nn-pending");
+    once([canvas], function () { requestAnimationFrame(function () { canvas.classList.remove("nn-pending"); }); }, { threshold: 0.3 });
+  }
+})();
+
+/* ---------- n8n "Run workflow" ----------
+   Plays the workflow like an n8n execution: each node turns active, then green with a
+   tick, and its outgoing connections animate. Works with reduced motion too (no dash
+   animation, same states). */
+(function () {
+  var btn = document.querySelector("[data-n8n-run]");
+  var canvas = document.querySelector(".n8n-canvas");
+  if (!btn || !canvas) return;
+  var status = document.querySelector(".n8n-status");
+  var ns = "http://www.w3.org/2000/svg";
+  var nodes = Array.prototype.slice.call(canvas.querySelectorAll("g[data-tip]"));
+  var box = function (g) { return g.querySelector(".nn-n").getBBox(); };
+  nodes.forEach(function (g) {
+    var b = box(g), badge = document.createElementNS(ns, "g");
+    badge.setAttribute("class", "nn-badge");
+    badge.innerHTML = '<circle cx="' + (b.x + b.width - 4) + '" cy="' + (b.y + 4) + '" r="9"/><path d="M' + (b.x + b.width - 8) + ' ' + (b.y + 4) + ' l3 3 l5 -6"/>';
+    g.appendChild(badge);
+  });
+  // order by column, top row first
+  nodes.sort(function (a, b) { var A = box(a), B = box(b); return A.x - B.x || A.y - B.y; });
+  var edges = Array.prototype.slice.call(canvas.querySelectorAll(".nn-e"));
+  var startsAt = function (e) { var m = e.getAttribute("d").match(/^M([\d.]+) ([\d.]+)/); return { x: +m[1], y: +m[2] }; };
+  var running = false;
+  btn.addEventListener("click", function () {
+    if (running) return;
+    running = true; btn.disabled = true;
+    nodes.forEach(function (g) { g.classList.remove("nn-active", "nn-ok"); });
+    edges.forEach(function (e) { e.classList.remove("nn-flow"); });
+    var cols = [];
+    nodes.forEach(function (g) { var x = box(g).x; var c = cols.filter(function (k) { return k.x === x; })[0]; if (!c) { c = { x: x, nodes: [] }; cols.push(c); } c.nodes.push(g); });
+    var i = 0;
+    status.textContent = "Running…";
+    var tick = function () {
+      if (i > 0) cols[i - 1].nodes.forEach(function (g) { g.classList.remove("nn-active"); g.classList.add("nn-ok"); });
+      if (i === cols.length) {
+        edges.forEach(function (e) { e.classList.remove("nn-flow"); });
+        status.textContent = "Run complete: 9 items checked, 6 exceptions sent to the register and Power BI refreshed (sample data, see the demo below).";
+        running = false; btn.disabled = false; btn.textContent = "Run again";
+        return;
+      }
+      var col = cols[i];
+      col.nodes.forEach(function (g) { g.classList.add("nn-active"); });
+      edges.forEach(function (e) {
+        var s = startsAt(e), right = col.x + box(col.nodes[0]).width;
+        e.classList.toggle("nn-flow", Math.abs(s.x - right) < 8);
+      });
+      i++;
+      setTimeout(tick, 520);
+    };
+    tick();
+  });
+})();
