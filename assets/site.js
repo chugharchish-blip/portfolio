@@ -200,13 +200,17 @@
     }
     function paint(i, on) {
       var hits = check(rows[i], on), res = trs[i].querySelector(".res");
+      var text = hits.length ? hits.join(" · ") : "Matched", was = res.textContent;
       res.className = "res " + (hits.length ? "ex" : "ok");
-      res.textContent = hits.length ? hits.join(" · ") : "Matched";
+      res.textContent = text;
+      if (was && was !== "Waiting" && was !== text) { trs[i].classList.remove("changed"); void trs[i].offsetWidth; trs[i].classList.add("changed"); }
       return hits.length;
     }
     function summary(ex) {
-      recon.querySelector('[data-n="ex"]').textContent = ex;
-      recon.querySelector('[data-n="ok"]').textContent = rows.length - ex;
+      [["ex", ex], ["ok", rows.length - ex]].forEach(function (p) {
+        var el = recon.querySelector('[data-n="' + p[0] + '"]');
+        if (el.textContent !== String(p[1])) { el.textContent = p[1]; el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+      });
     }
     function runAll() { var on = rulesOn(), ex = 0; rows.forEach(function (_, i) { ex += paint(i, on) ? 1 : 0; }); summary(ex); }
     recon.querySelectorAll("[data-rule]").forEach(function (c) { c.addEventListener("change", runAll); });
@@ -250,4 +254,488 @@
     var r = t.getBoundingClientRect(); show({ target: t, clientX: r.right, clientY: r.top });
   });
   document.addEventListener("focusout", function () { tip.classList.remove("on"); });
+})();
+
+/* ---------- Motion ----------
+   Plain JavaScript, no libraries. Everything is visible before this runs, and none
+   of it runs when the visitor's device asks for reduced motion. */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce || !("IntersectionObserver" in window)) return;
+  var root = document.documentElement;
+  root.classList.add("motion");
+  var vh = window.innerHeight;
+  var below = function (el) { return el.getBoundingClientRect().top > vh * 0.92; };
+  var once = function (els, cb, opts) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); cb(e.target); } });
+    }, opts || { rootMargin: "0px 0px -10% 0px" });
+    els.forEach(function (el) { io.observe(el); });
+  };
+
+  // 1. Scroll reveal with a short stagger for items that enter together
+  var sel = [
+    ".sec-head", ".area", ".work-list li", ".other > div", ".cv li", ".skill-cols > div", "#skills .table-scroll", ".contact-item",
+    ".exec-grid > div", ".kpi", ".cs-section > .wp", ".cs-section > h2", ".cs-section > h3", ".cs-section > p", ".cs-section > ul",
+    ".cs-section > .table-scroll", ".cs-section > .rag-key", ".phases li", ".steps li", ".exhibit", ".callout", ".takeaways", ".uae-box"
+  ].join(",");
+  var targets = Array.prototype.filter.call(document.querySelectorAll(sel), below);
+  targets.forEach(function (el) { el.classList.add("reveal"); });
+  var batch = [], timer = null;
+  var flush = function () {
+    batch.sort(function (a, b) { return a.compareDocumentPosition(b) & 4 ? -1 : 1; });
+    batch.forEach(function (el, i) {
+      el.style.transitionDelay = Math.min(i * 70, 420) + "ms";
+      el.classList.add("in");
+      el.addEventListener("transitionend", function done() {
+        el.removeEventListener("transitionend", done);
+        el.style.transitionDelay = ""; el.classList.remove("reveal", "in");
+      });
+    });
+    batch = []; timer = null;
+  };
+  once(targets, function (el) { batch.push(el); if (!timer) timer = setTimeout(flush, 16); });
+
+  // 2. Count up headline figures such as "₹347 cr", "25%" and "13"
+  var ease = function (t) { return 1 - Math.pow(1 - t, 3); };
+  var count = function (el) {
+    var text = el.textContent, m = text.match(/^(\D*)(\d+)(\D*)$/);
+    if (!m) return;
+    var end = +m[2], start = null, dur = 1100;
+    el.setAttribute("aria-label", text);
+    var step = function (ts) {
+      if (start === null) start = ts;
+      var t = Math.min(1, (ts - start) / dur);
+      el.textContent = m[1] + Math.round(end * ease(t)) + m[3];
+      if (t < 1) requestAnimationFrame(step); else el.textContent = text;
+    };
+    requestAnimationFrame(step);
+  };
+  once(Array.prototype.slice.call(document.querySelectorAll(".facts dd, .kpi b, .work-list .fig")), function (el) {
+    setTimeout(function () { count(el); }, below(el) ? 150 : 450);
+  }, { threshold: 0.6 });
+
+  // 3. Fund-flow map: lines draw themselves stage by stage the first time it scrolls into view
+  var fundmap = document.getElementById("fundmap");
+  if (fundmap) {
+    once([fundmap], function () {
+      fundmap.querySelectorAll("path[data-step]").forEach(function (p) {
+        var stepNo = +p.getAttribute("data-step"), delay = (stepNo - 1) * 220;
+        if (p.classList.contains("e-fake")) {
+          p.style.opacity = "0"; p.style.transition = "opacity 500ms ease " + (delay + 300) + "ms";
+          requestAnimationFrame(function () { requestAnimationFrame(function () { p.style.opacity = ""; }); });
+          return;
+        }
+        var len = p.getTotalLength();
+        p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+        p.getBoundingClientRect();
+        p.style.transition = "stroke-dashoffset 700ms cubic-bezier(.22,.7,.2,1) " + delay + "ms";
+        p.style.strokeDashoffset = "0";
+        setTimeout(function () { p.style.strokeDasharray = ""; p.style.strokeDashoffset = ""; p.style.transition = ""; }, delay + 800);
+      });
+    }, { threshold: 0.35 });
+  }
+
+  // 4. Bar chart grows when it scrolls into view
+  document.querySelectorAll(".chart-sm").forEach(function (c) {
+    if (!below(c)) return;
+    c.classList.add("pending");
+    once([c], function () { requestAnimationFrame(function () { c.classList.remove("pending"); }); }, { threshold: 0.5 });
+  });
+
+  // 5. n8n canvas: nodes appear left to right, edges follow
+  var canvas = document.querySelector(".n8n-canvas");
+  if (canvas && below(canvas)) {
+    canvas.querySelectorAll("g[data-tip], .nn-e, .nn-o").forEach(function (el) {
+      el.style.transitionDelay = Math.round(el.getBBox().x * 0.9) + "ms";
+    });
+    canvas.classList.add("nn-pending");
+    once([canvas], function () { requestAnimationFrame(function () { canvas.classList.remove("nn-pending"); }); }, { threshold: 0.3 });
+  }
+})();
+
+/* ---------- n8n "Run workflow" ----------
+   Plays the workflow like an n8n execution: each node turns active, then green with a
+   tick, and its outgoing connections animate. Works with reduced motion too (no dash
+   animation, same states). */
+(function () {
+  var btn = document.querySelector("[data-n8n-run]");
+  var canvas = document.querySelector(".n8n-canvas");
+  if (!btn || !canvas) return;
+  var status = document.querySelector(".n8n-status");
+  var ns = "http://www.w3.org/2000/svg";
+  var nodes = Array.prototype.slice.call(canvas.querySelectorAll("g[data-tip]"));
+  var box = function (g) { return g.querySelector(".nn-n").getBBox(); };
+  nodes.forEach(function (g) {
+    var b = box(g), badge = document.createElementNS(ns, "g");
+    badge.setAttribute("class", "nn-badge");
+    badge.innerHTML = '<circle cx="' + (b.x + b.width - 4) + '" cy="' + (b.y + 4) + '" r="9"/><path d="M' + (b.x + b.width - 8) + ' ' + (b.y + 4) + ' l3 3 l5 -6"/>';
+    g.appendChild(badge);
+  });
+  // order by column, top row first
+  nodes.sort(function (a, b) { var A = box(a), B = box(b); return A.x - B.x || A.y - B.y; });
+  var edges = Array.prototype.slice.call(canvas.querySelectorAll(".nn-e"));
+  var startsAt = function (e) { var m = e.getAttribute("d").match(/^M([\d.]+) ([\d.]+)/); return { x: +m[1], y: +m[2] }; };
+  var running = false;
+  btn.addEventListener("click", function () {
+    if (running) return;
+    running = true; btn.disabled = true;
+    nodes.forEach(function (g) { g.classList.remove("nn-active", "nn-ok"); });
+    edges.forEach(function (e) { e.classList.remove("nn-flow"); });
+    var cols = [];
+    nodes.forEach(function (g) { var x = box(g).x; var c = cols.filter(function (k) { return k.x === x; })[0]; if (!c) { c = { x: x, nodes: [] }; cols.push(c); } c.nodes.push(g); });
+    var i = 0;
+    status.textContent = "Running…";
+    var tick = function () {
+      if (i > 0) cols[i - 1].nodes.forEach(function (g) { g.classList.remove("nn-active"); g.classList.add("nn-ok"); });
+      if (i === cols.length) {
+        edges.forEach(function (e) { e.classList.remove("nn-flow"); });
+        status.textContent = "Run complete: 9 items checked, 6 exceptions sent to the register and Power BI refreshed (sample data, see the demo below).";
+        running = false; btn.disabled = false; btn.textContent = "Run again";
+        return;
+      }
+      var col = cols[i];
+      col.nodes.forEach(function (g) { g.classList.add("nn-active"); });
+      edges.forEach(function (e) {
+        var s = startsAt(e), right = col.x + box(col.nodes[0]).width;
+        e.classList.toggle("nn-flow", Math.abs(s.x - right) < 8);
+      });
+      i++;
+      setTimeout(tick, 520);
+    };
+    tick();
+  });
+})();
+
+/* ---------- Motion, round 2 ---------- */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Back to top (works with or without motion)
+  var top = document.createElement("button");
+  top.type = "button"; top.className = "to-top"; top.setAttribute("aria-label", "Back to top");
+  top.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+  document.body.appendChild(top);
+  top.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); });
+  var onScroll = function () { top.classList.toggle("show", window.scrollY > window.innerHeight * 0.9); };
+  window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+  // Copy button feedback
+  document.querySelectorAll("[data-copy]").forEach(function (b) {
+    b.addEventListener("click", function () { b.classList.remove("done"); void b.offsetWidth; b.classList.add("done"); });
+  });
+
+  // Sliding gold indicator under the current nav link (home page)
+  var links = document.querySelector(".nav-links");
+  if (links && links.querySelector('a[href^="#"]')) {
+    var ink = document.createElement("span"); ink.className = "nav-ink"; ink.setAttribute("aria-hidden", "true");
+    links.appendChild(ink);
+    var place = function () {
+      var cur = links.querySelector('a[aria-current="true"]');
+      if (!cur) { ink.style.opacity = "0"; return; }
+      var lr = links.getBoundingClientRect(), r = cur.getBoundingClientRect();
+      ink.style.width = r.width + "px"; ink.style.transform = "translateX(" + (r.left - lr.left) + "px)"; ink.style.opacity = "1";
+    };
+    new MutationObserver(place).observe(links, { attributes: true, subtree: true, attributeFilter: ["aria-current"] });
+    window.addEventListener("resize", place);
+  }
+
+  // Cursor spotlight on cards (hover devices only)
+  if (window.matchMedia("(hover: hover)").matches) {
+    document.querySelectorAll(".area, .skill-cols > div, .work-list a, .exec-grid > div").forEach(function (el) {
+      el.classList.add("spot");
+      el.addEventListener("pointermove", function (e) {
+        var r = el.getBoundingClientRect();
+        el.style.setProperty("--mx", (e.clientX - r.left) + "px"); el.style.setProperty("--my", (e.clientY - r.top) + "px");
+      });
+    });
+  }
+
+  // Experience timeline rail fills as you scroll through it
+  var cv = document.querySelector(".cv");
+  if (cv) {
+    var rail = document.createElement("span"); rail.className = "cv-rail"; rail.setAttribute("aria-hidden", "true");
+    rail.innerHTML = "<i></i>"; cv.appendChild(rail);
+    var items = cv.querySelectorAll("li");
+    var fill = function () {
+      if (reduce) { rail.style.setProperty("--p", 1); items.forEach(function (li) { li.classList.add("reached"); }); return; }
+      var r = cv.getBoundingClientRect(), mark = window.innerHeight * 0.7;
+      var p = Math.max(0, Math.min(1, (mark - r.top) / r.height));
+      rail.style.setProperty("--p", p.toFixed(3));
+      items.forEach(function (li) { li.classList.toggle("reached", li.getBoundingClientRect().top + 30 < mark); });
+    };
+    window.addEventListener("scroll", fill, { passive: true }); window.addEventListener("resize", fill); fill();
+  }
+
+  if (reduce || !("IntersectionObserver" in window)) return;
+
+  // Focus line: each of the four areas lights up once, in turn
+  var spans = document.querySelectorAll(".focus-line > span");
+  spans.forEach(function (s, i) {
+    setTimeout(function () { s.classList.add("lit"); setTimeout(function () { s.classList.remove("lit"); }, 650); }, 700 + i * 420);
+  });
+
+  // Hero pattern drifts slightly with scroll (scroll-linked, not a loop)
+  var hero = document.querySelector(".hero, .cs-hero");
+  if (hero) {
+    var drift = function () { var y = Math.min(window.scrollY, 600); hero.style.backgroundPosition = "right " + Math.round(-y * 0.15) + "px top " + Math.round(y * 0.25) + "px"; };
+    window.addEventListener("scroll", drift, { passive: true });
+  }
+
+  // Pop-ins: RAG pills, heat map, money-trail dots
+  var pop = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return; pop.unobserve(e.target);
+      var kids = e.target.querySelectorAll(".sev, .pin, .cell, .dot");
+      kids.forEach(function (k, i) { k.style.animationDelay = Math.min(i * 60, 900) + "ms"; });
+      e.target.classList.add("popped");
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll(".findings, .heat, .rag-key, #trail .diagram").forEach(function (el) {
+    if (el.getBoundingClientRect().top > window.innerHeight * 0.9) pop.observe(el);
+  });
+
+  // Follow the money: a coin travels along each lit line of the fund-flow map
+  var map = document.getElementById("fundmap");
+  if (map) {
+    var svg = map.querySelector("svg"), NS = "http://www.w3.org/2000/svg";
+    var send = function (paths, stagger) {
+      paths.forEach(function (p, i) {
+        var len = p.getTotalLength(), c = document.createElementNS(NS, "circle");
+        c.setAttribute("r", "4.5"); c.setAttribute("class", "money"); svg.appendChild(c);
+        var t0 = null, dur = 1100, delay = (stagger ? i * 90 : i * 60);
+        var step = function (ts) {
+          if (t0 === null) t0 = ts + delay;
+          var t = Math.max(0, Math.min(1, (ts - t0) / dur)), pt = p.getPointAtLength(len * (1 - Math.pow(1 - t, 2)));
+          c.setAttribute("cx", pt.x); c.setAttribute("cy", pt.y); c.style.opacity = ts < t0 ? 0 : (t > .85 ? (1 - t) / .15 : 1);
+          if (t < 1) requestAnimationFrame(step); else c.remove();
+        };
+        requestAnimationFrame(step);
+      });
+    };
+    // once after the map has drawn itself
+    new IntersectionObserver(function (es, o) {
+      if (!es[0].isIntersecting) return; o.disconnect();
+      setTimeout(function () { send(Array.prototype.slice.call(svg.querySelectorAll("path.e-ok, path.e-div, path.e-rpt")), true); }, 1500);
+    }, { threshold: 0.35 }).observe(map);
+    // and along the highlighted lines at each stage of "Trace the money"
+    document.querySelectorAll("[data-trace-next], [data-trace-prev]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        svg.querySelectorAll(".money").forEach(function (c) { c.remove(); });
+        setTimeout(function () { send(Array.prototype.slice.call(svg.querySelectorAll("path.lit")), false); }, 120);
+      });
+    });
+  }
+})();
+
+/* ---------- Motion, round 3: text, background, template ---------- */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var nav = document.querySelector(".nav");
+  var onScroll = function () { if (nav) nav.classList.toggle("scrolled", window.scrollY > 40); };
+  window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+  // Reading progress on every page (case studies already have one)
+  if (nav && !nav.querySelector(".progress")) {
+    var bar = document.createElement("div"); bar.className = "progress"; bar.setAttribute("aria-hidden", "true");
+    var fill = document.createElement("i"); bar.appendChild(fill); nav.appendChild(bar);
+    var prog = function () { var h = document.documentElement.scrollHeight - window.innerHeight; fill.style.width = (h > 0 ? Math.min(100, window.scrollY / h * 100) : 0) + "%"; };
+    window.addEventListener("scroll", prog, { passive: true }); prog();
+  }
+  if (reduce || !("IntersectionObserver" in window)) return;
+
+  // Masked text reveal. Only the visible text is split; screen readers get the original via aria-label.
+  var split = function (el, byChar) {
+    var text = el.textContent.trim();
+    el.setAttribute("aria-label", text);
+    var i = 0;
+    var walk = function (node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+        if (n.nodeType === 1) { walk(n); return; }
+        if (n.nodeType !== 3 || !n.textContent.trim()) return;
+        var frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(function (tok) {
+          if (!tok) return;
+          if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(tok)); return; }
+          var parts = byChar ? tok.split("") : [tok];
+          var word = document.createElement("span"); word.style.whiteSpace = "nowrap";
+          parts.forEach(function (p) {
+            var w = document.createElement("span"); w.className = "w"; w.setAttribute("aria-hidden", "true");
+            var inner = document.createElement("span"); inner.textContent = p;
+            inner.style.transitionDelay = (i++ * (byChar ? 35 : 55)) + "ms";
+            w.appendChild(inner); word.appendChild(w);
+          });
+          frag.appendChild(word);
+        });
+        n.parentNode.replaceChild(frag, n);
+      });
+    };
+    walk(el);
+    el.classList.add("split", "ready");
+  };
+  var play = function (el) { requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("play"); }); }); };
+  var heroName = document.querySelector(".hero h1");
+  if (heroName) { split(heroName, true); setTimeout(function () { play(heroName); }, 120); }
+  var csTitle = document.querySelector(".cs-hero h1");
+  if (csTitle) { split(csTitle, false); setTimeout(function () { play(csTitle); }, 160); }
+  var heads = Array.prototype.filter.call(document.querySelectorAll(".sec-head h2, .cs-section > h2"), function (h) {
+    return h.textContent.trim().split(/\s+/).length <= 9 && h.getBoundingClientRect().top > window.innerHeight * 0.9;
+  });
+  heads.forEach(function (h) { split(h, false); });
+  var hio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { hio.unobserve(e.target); play(e.target); } }); }, { rootMargin: "0px 0px -12% 0px" });
+  heads.forEach(function (h) { hio.observe(h); });
+
+  // Table rows rise in one after another
+  var rows = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return; rows.unobserve(e.target);
+      e.target.querySelectorAll("tbody tr").forEach(function (tr, i) { tr.style.animationDelay = Math.min(i * 70, 700) + "ms"; });
+      e.target.classList.add("popped");
+    });
+  }, { threshold: 0.2 });
+  document.querySelectorAll(".map-table, .findings").forEach(function (t) { if (t.getBoundingClientRect().top > window.innerHeight * 0.9) rows.observe(t); });
+
+  // Tilt on capability and skill cards
+  if (window.matchMedia("(hover: hover)").matches) {
+    document.querySelectorAll(".area, .skill-cols > div").forEach(function (el) {
+      el.classList.add("tilt");
+      el.addEventListener("pointermove", function (e) {
+        var r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        el.style.setProperty("--ry", (x * 3).toFixed(2) + "deg"); el.style.setProperty("--rx", (-y * 3).toFixed(2) + "deg");
+      });
+      el.addEventListener("pointerleave", function () { el.style.setProperty("--rx", "0deg"); el.style.setProperty("--ry", "0deg"); });
+    });
+  }
+
+  // Drifting gold glow in sand sections, only while on screen
+  var live = new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.classList.toggle("live", e.isIntersecting); }); });
+  document.querySelectorAll(".section.alt").forEach(function (s) { live.observe(s); });
+
+  // Living network of connected points behind the dark bands (pauses off screen and in background tabs)
+  document.querySelectorAll(".hero, .cs-hero, .contact").forEach(function (band) {
+    var c = document.createElement("canvas"); c.className = "net"; c.setAttribute("aria-hidden", "true");
+    band.insertBefore(c, band.firstChild);
+    var ctx = c.getContext("2d"), dpr = Math.min(window.devicePixelRatio || 1, 2), W = 0, H = 0, pts = [], mouse = null, visible = false, raf = null;
+    var size = function () {
+      var r = band.getBoundingClientRect(); W = r.width; H = r.height;
+      c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var n = Math.round(Math.min(70, Math.max(22, W * H / 16000)));
+      pts = []; for (var i = 0; i < n; i++) pts.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .22, vy: (Math.random() - .5) * .22, r: Math.random() * 1.6 + .8 });
+    };
+    var LINK = 130;
+    var frame = function () {
+      ctx.clearRect(0, 0, W, H);
+      for (var i = 0; i < pts.length; i++) {
+        var p = pts[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1;
+        for (var j = i + 1; j < pts.length; j++) {
+          var q = pts[j], dx = p.x - q.x, dy = p.y - q.y, d = Math.sqrt(dx * dx + dy * dy);
+          if (d < LINK) { ctx.strokeStyle = "rgba(201,164,92," + (0.22 * (1 - d / LINK)).toFixed(3) + ")"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke(); }
+        }
+        if (mouse) {
+          var mx = p.x - mouse.x, my = p.y - mouse.y, md = Math.sqrt(mx * mx + my * my);
+          if (md < 170) { ctx.strokeStyle = "rgba(224,192,127," + (0.45 * (1 - md / 170)).toFixed(3) + ")"; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); }
+        }
+        ctx.fillStyle = "rgba(224,192,127,.7)"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+      }
+      raf = visible && !document.hidden ? requestAnimationFrame(frame) : null;
+    };
+    var start = function () { if (!raf && visible && !document.hidden) raf = requestAnimationFrame(frame); };
+    size(); frame(); c.classList.add("on");
+    new IntersectionObserver(function (es) { visible = es[0].isIntersecting; start(); }).observe(band);
+    document.addEventListener("visibilitychange", start);
+    window.addEventListener("resize", function () { size(); });
+    band.addEventListener("pointermove", function (e) { var r = band.getBoundingClientRect(); mouse = { x: e.clientX - r.left, y: e.clientY - r.top }; });
+    band.addEventListener("pointerleave", function () { mouse = null; });
+  });
+})();
+
+/* ---------- Motion, round 4: body text ----------
+   Short lines rise word by word; paragraphs rise line by line from behind a mask and
+   then return to plain text, so reading, copying and screen readers are unaffected. */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce || !("IntersectionObserver" in window)) return;
+  var vh = window.innerHeight;
+  var below = function (el) { return el.getBoundingClientRect().top > vh * 0.92; };
+  var plain = function (el) { return el.children.length === 0 && el.textContent.trim().length > 0; };
+  var frame2 = function (fn) { requestAnimationFrame(function () { requestAnimationFrame(fn); }); };
+
+  // Paragraph: wrap words, group them into the lines the browser laid out, mask each line
+  var lineUp = function (el, delay) {
+    var original = el.innerHTML, words = el.textContent.trim().split(/\s+/);
+    el.innerHTML = words.map(function (w) { return '<span class="wd">' + w.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span>"; }).join(" ");
+    var lines = [], top = null;
+    el.querySelectorAll(".wd").forEach(function (s) {
+      if (top === null || Math.abs(s.offsetTop - top) > 4) { lines.push([]); top = s.offsetTop; }
+      lines[lines.length - 1].push(s.textContent);
+    });
+    el.innerHTML = lines.map(function (l, i) {
+      return '<span class="ln"><span style="transition-delay:' + (delay + i * 90) + 'ms">' + l.join(" ").replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span></span>";
+    }).join("");
+    el.setAttribute("aria-label", words.join(" "));
+    el.classList.add("lines");
+    return function play() {
+      frame2(function () { el.classList.add("play"); });
+      setTimeout(function () { el.innerHTML = original; el.classList.remove("lines", "play"); el.classList.add("settled"); el.removeAttribute("aria-label"); }, delay + lines.length * 90 + 900);
+    };
+  };
+
+  // Short line: word by word
+  var wordUp = function (el, delay) {
+    var original = el.innerHTML, i = 0;
+    el.setAttribute("aria-label", el.textContent.trim());
+    var walk = function (node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+        if (n.nodeType === 1) { walk(n); return; }
+        if (n.nodeType !== 3 || !n.textContent.trim()) return;
+        var frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(function (tok) {
+          if (!tok) return;
+          if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(tok)); return; }
+          var w = document.createElement("span"); w.className = "w"; w.setAttribute("aria-hidden", "true");
+          var inner = document.createElement("span"); inner.textContent = tok; inner.style.transitionDelay = (delay + i++ * 45) + "ms";
+          w.appendChild(inner); frag.appendChild(w);
+        });
+        n.parentNode.replaceChild(frag, n);
+      });
+    };
+    walk(el);
+    el.classList.add("split", "ready");
+    return function play() {
+      frame2(function () { el.classList.add("play"); });
+      setTimeout(function () { el.innerHTML = original; el.classList.remove("split", "ready", "play"); el.classList.add("settled"); el.removeAttribute("aria-label"); }, delay + i * 45 + 900);
+    };
+  };
+
+  var init = function () {
+  // Page header text plays on load, after the name or title
+  var onLoad = [
+    [".hero .sub", wordUp, 450], [".hero .lead", lineUp, 650],
+    [".cs-hero .lead", lineUp, 500]
+  ];
+  onLoad.forEach(function (d) { var el = document.querySelector(d[0]); if (el && plain(el)) d[1](el, d[2])(); });
+
+  // Everything else plays as it scrolls into view
+  var queue = [];
+  document.querySelectorAll(".area h3, .work-list h3, .cv h3, .other > h3, .skill-cols h4, .exec-grid h3, .takeaways h3, .uae-box h3").forEach(function (el) {
+    if (below(el)) queue.push([el, wordUp(el, 120)]);
+  });
+  document.querySelectorAll(".sec-head p, .cs-section > p, .callout p, .uae-box p, .exec-grid p, .area > p:not(.ev)").forEach(function (el) {
+    if (plain(el) && below(el)) queue.push([el, lineUp(el, 180)]);
+  });
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return; io.unobserve(e.target);
+      queue.forEach(function (q) { if (q[0] === e.target) q[1](); });
+    });
+  }, { rootMargin: "0px 0px -8% 0px" });
+  queue.forEach(function (q) { io.observe(q[0]); });
+  };
+  // Lines are measured, so wait for the web font to be in place first
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(init);
+
+  // Paragraph lines depend on width: if the window is resized mid-animation, finish at once
+  window.addEventListener("resize", function () { document.querySelectorAll(".lines").forEach(function (el) { el.classList.add("play"); }); });
 })();

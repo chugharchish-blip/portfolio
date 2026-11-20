@@ -12,7 +12,8 @@ const pages = [
 ];
 
 const browser = await chromium.launch();
-const page = await browser.newPage();
+// Build with reduced motion so no animation code splits or hides text in the PDF
+const page = await browser.newPage({ reducedMotion: "reduce" });
 for (const name of pages) {
   const url = pathToFileURL(path.join(root, "case-studies", `${name}.html`)).href;
   await page.goto(url, { waitUntil: "networkidle" });
