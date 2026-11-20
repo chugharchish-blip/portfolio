@@ -650,3 +650,92 @@
     band.addEventListener("pointerleave", function () { mouse = null; });
   });
 })();
+
+/* ---------- Motion, round 4: body text ----------
+   Short lines rise word by word; paragraphs rise line by line from behind a mask and
+   then return to plain text, so reading, copying and screen readers are unaffected. */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce || !("IntersectionObserver" in window)) return;
+  var vh = window.innerHeight;
+  var below = function (el) { return el.getBoundingClientRect().top > vh * 0.92; };
+  var plain = function (el) { return el.children.length === 0 && el.textContent.trim().length > 0; };
+  var frame2 = function (fn) { requestAnimationFrame(function () { requestAnimationFrame(fn); }); };
+
+  // Paragraph: wrap words, group them into the lines the browser laid out, mask each line
+  var lineUp = function (el, delay) {
+    var original = el.innerHTML, words = el.textContent.trim().split(/\s+/);
+    el.innerHTML = words.map(function (w) { return '<span class="wd">' + w.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span>"; }).join(" ");
+    var lines = [], top = null;
+    el.querySelectorAll(".wd").forEach(function (s) {
+      if (top === null || Math.abs(s.offsetTop - top) > 4) { lines.push([]); top = s.offsetTop; }
+      lines[lines.length - 1].push(s.textContent);
+    });
+    el.innerHTML = lines.map(function (l, i) {
+      return '<span class="ln"><span style="transition-delay:' + (delay + i * 90) + 'ms">' + l.join(" ").replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span></span>";
+    }).join("");
+    el.setAttribute("aria-label", words.join(" "));
+    el.classList.add("lines");
+    return function play() {
+      frame2(function () { el.classList.add("play"); });
+      setTimeout(function () { el.innerHTML = original; el.classList.remove("lines", "play"); el.classList.add("settled"); el.removeAttribute("aria-label"); }, delay + lines.length * 90 + 900);
+    };
+  };
+
+  // Short line: word by word
+  var wordUp = function (el, delay) {
+    var original = el.innerHTML, i = 0;
+    el.setAttribute("aria-label", el.textContent.trim());
+    var walk = function (node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+        if (n.nodeType === 1) { walk(n); return; }
+        if (n.nodeType !== 3 || !n.textContent.trim()) return;
+        var frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(function (tok) {
+          if (!tok) return;
+          if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(tok)); return; }
+          var w = document.createElement("span"); w.className = "w"; w.setAttribute("aria-hidden", "true");
+          var inner = document.createElement("span"); inner.textContent = tok; inner.style.transitionDelay = (delay + i++ * 45) + "ms";
+          w.appendChild(inner); frag.appendChild(w);
+        });
+        n.parentNode.replaceChild(frag, n);
+      });
+    };
+    walk(el);
+    el.classList.add("split", "ready");
+    return function play() {
+      frame2(function () { el.classList.add("play"); });
+      setTimeout(function () { el.innerHTML = original; el.classList.remove("split", "ready", "play"); el.classList.add("settled"); el.removeAttribute("aria-label"); }, delay + i * 45 + 900);
+    };
+  };
+
+  var init = function () {
+  // Page header text plays on load, after the name or title
+  var onLoad = [
+    [".hero .sub", wordUp, 450], [".hero .lead", lineUp, 650],
+    [".cs-hero .lead", lineUp, 500]
+  ];
+  onLoad.forEach(function (d) { var el = document.querySelector(d[0]); if (el && plain(el)) d[1](el, d[2])(); });
+
+  // Everything else plays as it scrolls into view
+  var queue = [];
+  document.querySelectorAll(".area h3, .work-list h3, .cv h3, .other > h3, .skill-cols h4, .exec-grid h3, .takeaways h3, .uae-box h3").forEach(function (el) {
+    if (below(el)) queue.push([el, wordUp(el, 120)]);
+  });
+  document.querySelectorAll(".sec-head p, .cs-section > p, .callout p, .uae-box p, .exec-grid p, .area > p:not(.ev)").forEach(function (el) {
+    if (plain(el) && below(el)) queue.push([el, lineUp(el, 180)]);
+  });
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return; io.unobserve(e.target);
+      queue.forEach(function (q) { if (q[0] === e.target) q[1](); });
+    });
+  }, { rootMargin: "0px 0px -8% 0px" });
+  queue.forEach(function (q) { io.observe(q[0]); });
+  };
+  // Lines are measured, so wait for the web font to be in place first
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(init);
+
+  // Paragraph lines depend on width: if the window is resized mid-animation, finish at once
+  window.addEventListener("resize", function () { document.querySelectorAll(".lines").forEach(function (el) { el.classList.add("play"); }); });
+})();
