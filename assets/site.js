@@ -200,13 +200,17 @@
     }
     function paint(i, on) {
       var hits = check(rows[i], on), res = trs[i].querySelector(".res");
+      var text = hits.length ? hits.join(" · ") : "Matched", was = res.textContent;
       res.className = "res " + (hits.length ? "ex" : "ok");
-      res.textContent = hits.length ? hits.join(" · ") : "Matched";
+      res.textContent = text;
+      if (was && was !== "Waiting" && was !== text) { trs[i].classList.remove("changed"); void trs[i].offsetWidth; trs[i].classList.add("changed"); }
       return hits.length;
     }
     function summary(ex) {
-      recon.querySelector('[data-n="ex"]').textContent = ex;
-      recon.querySelector('[data-n="ok"]').textContent = rows.length - ex;
+      [["ex", ex], ["ok", rows.length - ex]].forEach(function (p) {
+        var el = recon.querySelector('[data-n="' + p[0] + '"]');
+        if (el.textContent !== String(p[1])) { el.textContent = p[1]; el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+      });
     }
     function runAll() { var on = rulesOn(), ex = 0; rows.forEach(function (_, i) { ex += paint(i, on) ? 1 : 0; }); summary(ex); }
     recon.querySelectorAll("[data-rule]").forEach(function (c) { c.addEventListener("change", runAll); });
@@ -401,4 +405,125 @@
     };
     tick();
   });
+})();
+
+/* ---------- Motion, round 2 ---------- */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Back to top (works with or without motion)
+  var top = document.createElement("button");
+  top.type = "button"; top.className = "to-top"; top.setAttribute("aria-label", "Back to top");
+  top.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+  document.body.appendChild(top);
+  top.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); });
+  var onScroll = function () { top.classList.toggle("show", window.scrollY > window.innerHeight * 0.9); };
+  window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+  // Copy button feedback
+  document.querySelectorAll("[data-copy]").forEach(function (b) {
+    b.addEventListener("click", function () { b.classList.remove("done"); void b.offsetWidth; b.classList.add("done"); });
+  });
+
+  // Sliding gold indicator under the current nav link (home page)
+  var links = document.querySelector(".nav-links");
+  if (links && links.querySelector('a[href^="#"]')) {
+    var ink = document.createElement("span"); ink.className = "nav-ink"; ink.setAttribute("aria-hidden", "true");
+    links.appendChild(ink);
+    var place = function () {
+      var cur = links.querySelector('a[aria-current="true"]');
+      if (!cur) { ink.style.opacity = "0"; return; }
+      var lr = links.getBoundingClientRect(), r = cur.getBoundingClientRect();
+      ink.style.width = r.width + "px"; ink.style.transform = "translateX(" + (r.left - lr.left) + "px)"; ink.style.opacity = "1";
+    };
+    new MutationObserver(place).observe(links, { attributes: true, subtree: true, attributeFilter: ["aria-current"] });
+    window.addEventListener("resize", place);
+  }
+
+  // Cursor spotlight on cards (hover devices only)
+  if (window.matchMedia("(hover: hover)").matches) {
+    document.querySelectorAll(".area, .skill-cols > div, .work-list a, .exec-grid > div").forEach(function (el) {
+      el.classList.add("spot");
+      el.addEventListener("pointermove", function (e) {
+        var r = el.getBoundingClientRect();
+        el.style.setProperty("--mx", (e.clientX - r.left) + "px"); el.style.setProperty("--my", (e.clientY - r.top) + "px");
+      });
+    });
+  }
+
+  // Experience timeline rail fills as you scroll through it
+  var cv = document.querySelector(".cv");
+  if (cv) {
+    var rail = document.createElement("span"); rail.className = "cv-rail"; rail.setAttribute("aria-hidden", "true");
+    rail.innerHTML = "<i></i>"; cv.appendChild(rail);
+    var items = cv.querySelectorAll("li");
+    var fill = function () {
+      if (reduce) { rail.style.setProperty("--p", 1); items.forEach(function (li) { li.classList.add("reached"); }); return; }
+      var r = cv.getBoundingClientRect(), mark = window.innerHeight * 0.7;
+      var p = Math.max(0, Math.min(1, (mark - r.top) / r.height));
+      rail.style.setProperty("--p", p.toFixed(3));
+      items.forEach(function (li) { li.classList.toggle("reached", li.getBoundingClientRect().top + 30 < mark); });
+    };
+    window.addEventListener("scroll", fill, { passive: true }); window.addEventListener("resize", fill); fill();
+  }
+
+  if (reduce || !("IntersectionObserver" in window)) return;
+
+  // Focus line: each of the four areas lights up once, in turn
+  var spans = document.querySelectorAll(".focus-line > span");
+  spans.forEach(function (s, i) {
+    setTimeout(function () { s.classList.add("lit"); setTimeout(function () { s.classList.remove("lit"); }, 650); }, 700 + i * 420);
+  });
+
+  // Hero pattern drifts slightly with scroll (scroll-linked, not a loop)
+  var hero = document.querySelector(".hero, .cs-hero");
+  if (hero) {
+    var drift = function () { var y = Math.min(window.scrollY, 600); hero.style.backgroundPosition = "right " + Math.round(-y * 0.15) + "px top " + Math.round(y * 0.25) + "px"; };
+    window.addEventListener("scroll", drift, { passive: true });
+  }
+
+  // Pop-ins: RAG pills, heat map, money-trail dots
+  var pop = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return; pop.unobserve(e.target);
+      var kids = e.target.querySelectorAll(".sev, .pin, .cell, .dot");
+      kids.forEach(function (k, i) { k.style.animationDelay = Math.min(i * 60, 900) + "ms"; });
+      e.target.classList.add("popped");
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll(".findings, .heat, .rag-key, #trail .diagram").forEach(function (el) {
+    if (el.getBoundingClientRect().top > window.innerHeight * 0.9) pop.observe(el);
+  });
+
+  // Follow the money: a coin travels along each lit line of the fund-flow map
+  var map = document.getElementById("fundmap");
+  if (map) {
+    var svg = map.querySelector("svg"), NS = "http://www.w3.org/2000/svg";
+    var send = function (paths, stagger) {
+      paths.forEach(function (p, i) {
+        var len = p.getTotalLength(), c = document.createElementNS(NS, "circle");
+        c.setAttribute("r", "4.5"); c.setAttribute("class", "money"); svg.appendChild(c);
+        var t0 = null, dur = 1100, delay = (stagger ? i * 90 : i * 60);
+        var step = function (ts) {
+          if (t0 === null) t0 = ts + delay;
+          var t = Math.max(0, Math.min(1, (ts - t0) / dur)), pt = p.getPointAtLength(len * (1 - Math.pow(1 - t, 2)));
+          c.setAttribute("cx", pt.x); c.setAttribute("cy", pt.y); c.style.opacity = ts < t0 ? 0 : (t > .85 ? (1 - t) / .15 : 1);
+          if (t < 1) requestAnimationFrame(step); else c.remove();
+        };
+        requestAnimationFrame(step);
+      });
+    };
+    // once after the map has drawn itself
+    new IntersectionObserver(function (es, o) {
+      if (!es[0].isIntersecting) return; o.disconnect();
+      setTimeout(function () { send(Array.prototype.slice.call(svg.querySelectorAll("path.e-ok, path.e-div, path.e-rpt")), true); }, 1500);
+    }, { threshold: 0.35 }).observe(map);
+    // and along the highlighted lines at each stage of "Trace the money"
+    document.querySelectorAll("[data-trace-next], [data-trace-prev]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        svg.querySelectorAll(".money").forEach(function (c) { c.remove(); });
+        setTimeout(function () { send(Array.prototype.slice.call(svg.querySelectorAll("path.lit")), false); }, 120);
+      });
+    });
+  }
 })();
