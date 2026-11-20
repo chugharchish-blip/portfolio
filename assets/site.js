@@ -527,3 +527,126 @@
     });
   }
 })();
+
+/* ---------- Motion, round 3: text, background, template ---------- */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var nav = document.querySelector(".nav");
+  var onScroll = function () { if (nav) nav.classList.toggle("scrolled", window.scrollY > 40); };
+  window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+  // Reading progress on every page (case studies already have one)
+  if (nav && !nav.querySelector(".progress")) {
+    var bar = document.createElement("div"); bar.className = "progress"; bar.setAttribute("aria-hidden", "true");
+    var fill = document.createElement("i"); bar.appendChild(fill); nav.appendChild(bar);
+    var prog = function () { var h = document.documentElement.scrollHeight - window.innerHeight; fill.style.width = (h > 0 ? Math.min(100, window.scrollY / h * 100) : 0) + "%"; };
+    window.addEventListener("scroll", prog, { passive: true }); prog();
+  }
+  if (reduce || !("IntersectionObserver" in window)) return;
+
+  // Masked text reveal. Only the visible text is split; screen readers get the original via aria-label.
+  var split = function (el, byChar) {
+    var text = el.textContent.trim();
+    el.setAttribute("aria-label", text);
+    var i = 0;
+    var walk = function (node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+        if (n.nodeType === 1) { walk(n); return; }
+        if (n.nodeType !== 3 || !n.textContent.trim()) return;
+        var frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(function (tok) {
+          if (!tok) return;
+          if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(tok)); return; }
+          var parts = byChar ? tok.split("") : [tok];
+          var word = document.createElement("span"); word.style.whiteSpace = "nowrap";
+          parts.forEach(function (p) {
+            var w = document.createElement("span"); w.className = "w"; w.setAttribute("aria-hidden", "true");
+            var inner = document.createElement("span"); inner.textContent = p;
+            inner.style.transitionDelay = (i++ * (byChar ? 35 : 55)) + "ms";
+            w.appendChild(inner); word.appendChild(w);
+          });
+          frag.appendChild(word);
+        });
+        n.parentNode.replaceChild(frag, n);
+      });
+    };
+    walk(el);
+    el.classList.add("split", "ready");
+  };
+  var play = function (el) { requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("play"); }); }); };
+  var heroName = document.querySelector(".hero h1");
+  if (heroName) { split(heroName, true); setTimeout(function () { play(heroName); }, 120); }
+  var csTitle = document.querySelector(".cs-hero h1");
+  if (csTitle) { split(csTitle, false); setTimeout(function () { play(csTitle); }, 160); }
+  var heads = Array.prototype.filter.call(document.querySelectorAll(".sec-head h2, .cs-section > h2"), function (h) {
+    return h.textContent.trim().split(/\s+/).length <= 9 && h.getBoundingClientRect().top > window.innerHeight * 0.9;
+  });
+  heads.forEach(function (h) { split(h, false); });
+  var hio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { hio.unobserve(e.target); play(e.target); } }); }, { rootMargin: "0px 0px -12% 0px" });
+  heads.forEach(function (h) { hio.observe(h); });
+
+  // Table rows rise in one after another
+  var rows = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return; rows.unobserve(e.target);
+      e.target.querySelectorAll("tbody tr").forEach(function (tr, i) { tr.style.animationDelay = Math.min(i * 70, 700) + "ms"; });
+      e.target.classList.add("popped");
+    });
+  }, { threshold: 0.2 });
+  document.querySelectorAll(".map-table, .findings").forEach(function (t) { if (t.getBoundingClientRect().top > window.innerHeight * 0.9) rows.observe(t); });
+
+  // Tilt on capability and skill cards
+  if (window.matchMedia("(hover: hover)").matches) {
+    document.querySelectorAll(".area, .skill-cols > div").forEach(function (el) {
+      el.classList.add("tilt");
+      el.addEventListener("pointermove", function (e) {
+        var r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        el.style.setProperty("--ry", (x * 3).toFixed(2) + "deg"); el.style.setProperty("--rx", (-y * 3).toFixed(2) + "deg");
+      });
+      el.addEventListener("pointerleave", function () { el.style.setProperty("--rx", "0deg"); el.style.setProperty("--ry", "0deg"); });
+    });
+  }
+
+  // Drifting gold glow in sand sections, only while on screen
+  var live = new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.classList.toggle("live", e.isIntersecting); }); });
+  document.querySelectorAll(".section.alt").forEach(function (s) { live.observe(s); });
+
+  // Living network of connected points behind the dark bands (pauses off screen and in background tabs)
+  document.querySelectorAll(".hero, .cs-hero, .contact").forEach(function (band) {
+    var c = document.createElement("canvas"); c.className = "net"; c.setAttribute("aria-hidden", "true");
+    band.insertBefore(c, band.firstChild);
+    var ctx = c.getContext("2d"), dpr = Math.min(window.devicePixelRatio || 1, 2), W = 0, H = 0, pts = [], mouse = null, visible = false, raf = null;
+    var size = function () {
+      var r = band.getBoundingClientRect(); W = r.width; H = r.height;
+      c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var n = Math.round(Math.min(70, Math.max(22, W * H / 16000)));
+      pts = []; for (var i = 0; i < n; i++) pts.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .22, vy: (Math.random() - .5) * .22, r: Math.random() * 1.6 + .8 });
+    };
+    var LINK = 130;
+    var frame = function () {
+      ctx.clearRect(0, 0, W, H);
+      for (var i = 0; i < pts.length; i++) {
+        var p = pts[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1;
+        for (var j = i + 1; j < pts.length; j++) {
+          var q = pts[j], dx = p.x - q.x, dy = p.y - q.y, d = Math.sqrt(dx * dx + dy * dy);
+          if (d < LINK) { ctx.strokeStyle = "rgba(201,164,92," + (0.22 * (1 - d / LINK)).toFixed(3) + ")"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke(); }
+        }
+        if (mouse) {
+          var mx = p.x - mouse.x, my = p.y - mouse.y, md = Math.sqrt(mx * mx + my * my);
+          if (md < 170) { ctx.strokeStyle = "rgba(224,192,127," + (0.45 * (1 - md / 170)).toFixed(3) + ")"; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); }
+        }
+        ctx.fillStyle = "rgba(224,192,127,.7)"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+      }
+      raf = visible && !document.hidden ? requestAnimationFrame(frame) : null;
+    };
+    var start = function () { if (!raf && visible && !document.hidden) raf = requestAnimationFrame(frame); };
+    size(); frame(); c.classList.add("on");
+    new IntersectionObserver(function (es) { visible = es[0].isIntersecting; start(); }).observe(band);
+    document.addEventListener("visibilitychange", start);
+    window.addEventListener("resize", function () { size(); });
+    band.addEventListener("pointermove", function (e) { var r = band.getBoundingClientRect(); mouse = { x: e.clientX - r.left, y: e.clientY - r.top }; });
+    band.addEventListener("pointerleave", function () { mouse = null; });
+  });
+})();

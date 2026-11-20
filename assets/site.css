@@ -586,3 +586,71 @@ g.nn-ok .nn-badge { opacity: 1; }
   .recon-table tr.changed td, .recon-sum b.bump, .copy.done { animation: none; }
 }
 @media print { .to-top, .nav-ink, .cv-rail, .money { display: none !important; } .cv li::before { display: none; } }
+
+/* ================= MOTION, ROUND 3: text, background, template ================= */
+
+/* masked text reveal: letters for the name, words for headings */
+.split .w { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .08em; margin-bottom: -.08em; }
+.split .w > span { display: inline-block; }
+.motion .split.ready .w > span { transform: translateY(105%); }
+.motion .split.ready.play .w > span { transform: none; transition: transform 700ms cubic-bezier(.2, .8, .2, 1); }
+.motion .hero h1.split, .motion .cs-hero h1.split { animation: none; }
+.hero h1 { position: relative; display: block; width: fit-content; }
+.hero h1::after { content: ""; display: block; height: 3px; width: 72px; margin-top: .55rem; background: var(--gold); transform-origin: left; }
+.motion .hero h1.ready::after { transform: scaleX(0); }
+.motion .hero h1.play::after { transform: scaleX(1); transition: transform 800ms var(--ease-out) 650ms; }
+
+/* eyebrow labels track in */
+.motion .sec-head.reveal .wp { letter-spacing: .35em; opacity: 0; }
+.motion .sec-head .wp { transition: letter-spacing 700ms var(--ease-out), opacity 500ms ease; }
+.motion .sec-head.reveal.in .wp { letter-spacing: .12em; opacity: 1; }
+
+/* living network behind dark bands */
+.hero, .cs-hero, .contact { overflow: hidden; }
+.hero > canvas.net, .cs-hero > canvas.net, .contact > canvas.net { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 15%, #000 65%); mask-image: linear-gradient(90deg, transparent 15%, #000 65%); opacity: 0; transition: opacity 1200ms ease; }
+.hero > canvas.net.on, .cs-hero > canvas.net.on, .contact > canvas.net.on { opacity: 1; }
+
+/* soft gold glow drifting across sand sections while they are on screen */
+.section.alt { position: relative; overflow: hidden; }
+.section.alt > .wrap { position: relative; }
+.section.alt::before { content: ""; position: absolute; width: 60vw; height: 60vw; max-width: 760px; max-height: 760px; border-radius: 50%; top: -20%; left: -10%;
+  background: radial-gradient(circle, rgba(201, 164, 92, .18), transparent 65%); pointer-events: none; animation: glow 22s ease-in-out infinite alternate; animation-play-state: paused; }
+.section.alt.live::before { animation-play-state: running; }
+@keyframes glow { 0% { transform: translate(0, 0); } 50% { transform: translate(55vw, 25%); } 100% { transform: translate(20vw, 55%); } }
+
+/* nav tightens and lifts once you scroll */
+.nav { transition: box-shadow 300ms ease, background-color 300ms ease; }
+.nav .wrap { transition: padding 300ms var(--ease-out); }
+.nav.scrolled { box-shadow: 0 10px 30px -18px rgba(0, 0, 0, .7); background: color-mix(in srgb, var(--navy) 92%, transparent); backdrop-filter: blur(8px); }
+.nav.scrolled .wrap { padding-block: .55rem; }
+
+/* gold sheen across primary buttons */
+.btn-primary, .tbtn.primary { position: relative; overflow: hidden; }
+.btn-primary::after, .tbtn.primary::after { content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .45), transparent); pointer-events: none; }
+@media (hover: hover) { .btn-primary:hover::after, .tbtn.primary:hover::after { left: 130%; transition: left 650ms ease; } }
+
+/* tilt on capability and skill cards */
+@media (hover: hover) {
+  .area.tilt:hover, .skill-cols > div.tilt:hover { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-3px); }
+}
+
+/* table rows and exhibit rules */
+.motion .popped tbody tr { animation: rise 420ms var(--ease-out) both; }
+.exhibit-cap { position: relative; }
+.motion .exhibit.reveal .exhibit-cap { border-bottom-color: transparent; }
+.exhibit-cap::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px; background: var(--gold); transform-origin: left; transform: scaleX(0); opacity: 0; }
+.motion .exhibit.reveal.in .exhibit-cap::after { opacity: 1; transform: scaleX(1); transition: transform 800ms var(--ease-out) 250ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .motion .split.ready .w > span { transform: none; }
+  .section.alt::before { animation: none; }
+}
+@media print {
+  .split .w > span { transform: none !important; }
+  .hero h1::after { transform: none !important; }
+  canvas.net, .section.alt::before { display: none !important; }
+  .exhibit-cap::after { display: none; }
+}
+.area.tilt, .skill-cols > div.tilt { will-change: transform; -webkit-font-smoothing: subpixel-antialiased; }
